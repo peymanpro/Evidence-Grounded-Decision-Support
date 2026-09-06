@@ -4,10 +4,10 @@
 
 - [~] Phase 01 — Project Foundation
 - [~] Phase 02 — Domain Core
-- [ ] Phase 03 — Persistence
-- [ ] Phase 04 — Conversation System
-- [ ] Phase 05 — AI Provider Foundation
-- [ ] Phase 06 — Basic Orchestrator
+- [~] Phase 03 — Persistence
+- [~] Phase 04 — Conversation System
+- [~] Phase 05 — AI Provider Foundation
+- [~] Phase 06 — Basic Orchestrator
 - [ ] Phase 07 — Adaptive Interview
 - [ ] Phase 08 — Research Engine
 - [ ] Phase 09 — Evidence System
@@ -30,8 +30,10 @@
 
 ## Current status
 
-Phases 01–02 have implementation in progress. Phase 02 now has immutable, typed decision-analysis
-contracts that distinguish facts, assumptions, calculations, reasoning, and uncertainty, plus
-validated decision frames. Dependency installation and runtime validation remain blocked because
-the environment cannot reach PyPI; no PR checkpoint has been reached. The next continuation point
-is Phase 03 — Persistence.
+Phases 01–06 have implementation in progress. The repository reconciliation found no recoverable
+Phase 06 commit or branch, so the bounded deterministic orchestrator was reconstructed on the
+current cumulative foundation. It plans interview, research, quantitative, risk, critique, and
+synthesis stages selectively, keeps the three-question limit explicit, and keeps critique before
+synthesis. Dependency installation and full runtime validation remain blocked because the
+environment cannot reach PyPI; no PR checkpoint has been reached. The next continuation point is
+Phase 07 — Adaptive Interview.
