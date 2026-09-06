@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, PostgresDsn, field_validator, model_validator
+from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,20 +19,6 @@ class Settings(BaseSettings):
     default_ai_model: str = Field(default="wealthbrain-test", min_length=1, max_length=200)
     log_level: str = "INFO"
     cors_origins: list[str] = Field(default_factory=list)
-
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, value: str | list[str]) -> list[str]:
-        """Accept a comma-separated environment variable without weakening production CORS."""
-        if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
-        return value
-
-    @model_validator(mode="after")
-    def forbid_wildcard_production_cors(self) -> "Settings":
-        if self.app_env == "production" and "*" in self.cors_origins:
-            raise ValueError("CORS_ORIGINS must not contain '*' in production")
-        return self
 
 
 @lru_cache

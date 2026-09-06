@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 from wealthbrain.api.conversations import router as conversations_router
 from wealthbrain.config.settings import get_settings
@@ -13,7 +13,7 @@ from wealthbrain.infrastructure.database import create_engine, create_session_fa
 
 settings = get_settings()
 engine: AsyncEngine = create_engine(settings)
-session_factory: async_sessionmaker[AsyncSession] = create_session_factory(engine)
+session_factory: async_sessionmaker = create_session_factory(engine)
 
 
 @asynccontextmanager
