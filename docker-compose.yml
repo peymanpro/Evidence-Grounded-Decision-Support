@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://wealthbrain:wealthbrain@db:5432/wealthbrain
+    ports:
+      - "${PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: wealthbrain
+      POSTGRES_USER: wealthbrain
+      POSTGRES_PASSWORD: wealthbrain
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wealthbrain -d wealthbrain"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
