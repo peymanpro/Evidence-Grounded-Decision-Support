@@ -3,7 +3,7 @@
 ## Phase roadmap
 
 - [~] Phase 01 — Project Foundation
-- [ ] Phase 02 — Domain Core
+- [~] Phase 02 — Domain Core
 - [ ] Phase 03 — Persistence
 - [ ] Phase 04 — Conversation System
 - [ ] Phase 05 — AI Provider Foundation
@@ -30,5 +30,8 @@
 
 ## Current status
 
-Phase 01 implementation is in progress. Dependency installation and runtime validation are blocked
-because the environment cannot reach PyPI; no PR checkpoint has been reached.
+Phases 01–02 have implementation in progress. Phase 02 now has immutable, typed decision-analysis
+contracts that distinguish facts, assumptions, calculations, reasoning, and uncertainty, plus
+validated decision frames. Dependency installation and runtime validation remain blocked because
+the environment cannot reach PyPI; no PR checkpoint has been reached. The next continuation point
+is Phase 03 — Persistence.
