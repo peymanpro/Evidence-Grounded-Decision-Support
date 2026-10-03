@@ -23,7 +23,7 @@ class ConversationService:
         await self._session.commit()
         return ConversationResponse.model_validate(record)
 
-    async def list(self) -> list[ConversationResponse]:
+    async def list_conversations(self) -> list[ConversationResponse]:
         records = await self._repository.list_conversations()
         return [ConversationResponse.model_validate(record) for record in records]
 
