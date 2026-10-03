@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, Field, HttpUrl, ValidationInfo, field_validator
 
 
 class DecisionCreate(BaseModel):
@@ -71,7 +71,7 @@ class ScoreCreate(BaseModel):
 
 class EvidenceCreate(BaseModel):
     title: str = Field(min_length=1, max_length=300)
-    source_url: str = Field(min_length=1, max_length=2_000)
+    source_url: HttpUrl
     claim: str = Field(min_length=1, max_length=5_000)
     supports: bool = True
     confidence: float = Field(default=0.5, ge=0, le=1)
