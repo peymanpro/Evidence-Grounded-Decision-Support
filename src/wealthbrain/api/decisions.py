@@ -9,6 +9,7 @@ from wealthbrain.infrastructure.database import session_dependency
 from wealthbrain.modules.advisors.contracts import AdvisorPanel
 from wealthbrain.modules.advisors.service import AdvisorService
 from wealthbrain.modules.decisions.contracts import (
+    AuditEventResponse,
     AlternativeCreate,
     AlternativeResponse,
     CriterionCreate,
@@ -24,6 +25,7 @@ from wealthbrain.modules.decisions.contracts import (
     RiskResponse,
     ScoreCreate,
 )
+
 from wealthbrain.modules.decisions.interview import (
     InterviewQuestion,
     missing_questions,
@@ -103,6 +105,11 @@ async def add_journal_entry(
     decision_id: UUID, payload: JournalEntryCreate, service: Service
 ) -> JournalEntryResponse:
     return await service.add_journal_entry(decision_id, payload)
+
+
+@router.get("/{decision_id}/audit", response_model=list[AuditEventResponse])
+async def get_audit(decision_id: UUID, service: Service) -> list[AuditEventResponse]:
+    return await service.audit(decision_id)
 
 
 @router.get("/{decision_id}/report", response_model=DecisionReport)
