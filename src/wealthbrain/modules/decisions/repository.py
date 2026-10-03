@@ -120,6 +120,10 @@ class DecisionRepository:
             or alternative.decision_id != decision_id
         ):
             raise ValueError("Score references must belong to the decision.")
+        if not criterion.scale_min <= payload.score <= criterion.scale_max:
+            raise ValueError(
+                f"Score must be between {criterion.scale_min} and {criterion.scale_max}."
+            )
         from sqlalchemy import delete
 
         await self.session.execute(
