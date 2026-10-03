@@ -1,5 +1,5 @@
-from wealthbrain.modules.decisions.contracts import DecisionReport
 from wealthbrain.modules.advisors.contracts import AdvisorPanel, AdvisorView
+from wealthbrain.modules.decisions.contracts import DecisionReport
 
 
 class AdvisorService:
@@ -45,7 +45,8 @@ class AdvisorService:
                 name="Challenge",
                 focus="alternative explanations and hidden assumptions",
                 observations=[
-                    "A preferred alternative is provisional while evidence and assumptions remain incomplete."
+                    "A preferred alternative is provisional while evidence and "
+                    "assumptions remain incomplete."
                 ],
                 questions=[
                     "What evidence would most strongly change the current conclusion?",
