@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     )
     default_ai_provider: Literal["fake", "openai", "anthropic", "google"] = "fake"
     default_ai_model: str = Field(default="wealthbrain-test", min_length=1, max_length=200)
+    ai_base_url: str = "https://api.openai.com/v1"
+    ai_api_key: str | None = None
+    ai_timeout_seconds: float = Field(default=30.0, gt=0, le=120)
     log_level: str = "INFO"
     cors_origins: list[str] = Field(default_factory=list)
 
