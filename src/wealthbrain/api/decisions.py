@@ -26,6 +26,7 @@ from wealthbrain.modules.advisors.service import AdvisorService
 from wealthbrain.modules.decisions.interview import missing_questions
 from wealthbrain.modules.decisions.service import DecisionService
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
+from wealthbrain.modules.orchestration.service import DecisionAIService
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
 
@@ -117,3 +118,9 @@ async def get_advisor_panel(decision_id: UUID, service: Service) -> dict:
 async def get_quality_report(decision_id: UUID, service: Service) -> dict:
     report = await service.report(decision_id)
     return DecisionEvaluationService().evaluate(report).model_dump(mode="json")
+
+
+@router.get("/{decision_id}/ai-critique")
+async def get_ai_critique(decision_id: UUID, service: Service) -> dict[str, str]:
+    critique = await DecisionAIService(service).critique(decision_id)
+    return {"content": critique}
