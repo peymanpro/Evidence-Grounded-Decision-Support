@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from wealthbrain.modules.decisions.contracts import (
@@ -48,7 +48,7 @@ def test_quantitative_analysis_ranks_alternatives() -> None:
 
 def test_risk_analysis_orders_highest_score_first() -> None:
     decision_id = uuid4()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     low = RiskResponse(
         id=uuid4(),
         decision_id=decision_id,
