@@ -24,7 +24,7 @@ from wealthbrain.modules.decisions.contracts import (
     RiskResponse,
     ScoreCreate,
 )
-from wealthbrain.modules.decisions.interview import missing_questions
+from wealthbrain.modules.decisions.interview import InterviewQuestion, missing_questions, next_questions
 from wealthbrain.modules.decisions.service import DecisionService
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
@@ -150,3 +150,12 @@ async def get_research_plan(decision_id: UUID, service: Service) -> dict[str, ob
         ],
     )
     return plan.model_dump(mode="json")
+
+
+@router.get("/{decision_id}/next-question", response_model=InterviewQuestion | None)
+async def get_next_question(
+    decision_id: UUID, service: Service
+) -> InterviewQuestion | None:
+    report = await service.report(decision_id)
+    questions = next_questions(report)
+    return questions[0] if questions else None
