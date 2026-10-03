@@ -23,4 +23,4 @@ class ResearchFinding(BaseModel):
 class ResearchPlan(BaseModel):
     decision_id: str
     questions: list[ResearchQuestion]
-    findings: list[ResearchFinding] = []
+    findings: list[ResearchFinding] = Field(default_factory=list)
