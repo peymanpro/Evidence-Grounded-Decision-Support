@@ -28,7 +28,7 @@ Decision Journal
 Evaluation & Improvement
 ```
 
-The current repository is deliberately at the beginning of that journey. The implemented code is the **Phase 01 foundation**, not a completed wealth-advisory system.
+The repository is intentionally being built incrementally. Version `0.2.0` extends the original foundation into a structured decision workspace with deterministic analysis, adaptive questioning, auditability, and a real model-provider boundary. It is still not a completed wealth-advisory system.
 
 ## Why WealthBrain Exists
 
@@ -53,21 +53,26 @@ Its long-term focus is therefore **decision intelligence**, not:
 **Current phase:** Decision Intelligence Core — post-Phase 01 foundation  
 **Implementation state:** Foundation plus the first decision-intelligence core are implemented; later research, knowledge, specialist, and production phases remain on the roadmap.
 
-Phase 01 currently contains:
+Current implementation includes:
 
 - FastAPI application structure;
-- PostgreSQL persistence with SQLAlchemy 2.x;
-- Alembic migrations;
+- PostgreSQL persistence with SQLAlchemy 2.x and Alembic;
 - conversation and message persistence;
-- a bounded decision-domain model;
-- provider-neutral AI contracts;
-- a deterministic fake AI provider for local development and tests;
-- configuration loaded through Pydantic Settings;
-- liveness and database-readiness health endpoints;
+- structured decisions, alternatives, weighted criteria, scores, evidence, risks, and journal entries;
+- deterministic quantitative scoring and weight sensitivity analysis;
+- deterministic critique and structured synthesis with mandatory human review;
+- state-driven adaptive interview questions;
+- typed research-planning contracts;
+- deterministic specialist/advisor perspectives;
+- decision-quality checks;
+- a provider-neutral AI contract plus deterministic fake provider;
+- an OpenAI-compatible HTTP provider adapter;
+- decision audit events containing identifiers and operation metadata rather than private decision text;
+- request IDs and timing logs;
 - Docker and Docker Compose support;
 - CI checks for Ruff, mypy, pytest, and Docker build.
 
-Real model integration is now available through the OpenAI-compatible adapter. Research automation, broader knowledge management, specialist modules, full evaluation, observability, and production hardening remain incomplete.
+The research layer currently defines planning and evidence boundaries but does not yet perform autonomous web search/fetching. Broader knowledge management, production authentication, advanced evaluation, safety enforcement, and production hardening remain incomplete.
 
 ## Core Product Idea
 
@@ -102,21 +107,29 @@ Current foundation:
                        │
              ┌─────────┴─────────┐
              │                   │
-      Conversations          Health
-             │
-       Application Service
-             │
-       Repository Layer
-             │
-        SQLAlchemy ORM
-             │
-         PostgreSQL
+      Conversations        Decisions
+             │                │
+             └──────┬─────────┘
+                    ↓
+             Application Services
+                    ↓
+          Domain / Decision Engines
+                    ↓
+              Repositories
+                    ↓
+             SQLAlchemy ORM
+                    ↓
+               PostgreSQL
 
 AI boundary
-      Application → AIProvider
-                       │
-                 Fake Provider
-              (current Phase 01)
+ Application → AIProvider
+                 ├─ Fake Provider
+                 └─ OpenAI-compatible HTTP Adapter
+
+Supporting boundaries
+  Interview → Research Plan → Evidence
+  Decision  → Audit Trail
+  Decision  → Quality / Advisor Views
 ```
 
 The project is intentionally **provider-neutral** at the boundary. The current implementation exposes an `AIProvider` contract and a deterministic fake provider, while real provider integrations are reserved for later phases.
@@ -132,7 +145,8 @@ wealth-brain/
 ├── src/
 │   └── wealthbrain/
 │       ├── api/
-│       │   └── conversations.py
+│       │   ├── conversations.py
+│       │   └── decisions.py
 │       ├── config/
 │       │   └── settings.py
 │       ├── domain/
@@ -141,12 +155,18 @@ wealth-brain/
 │       │   ├── database.py
 │       │   └── models.py
 │       ├── modules/
+│       │   ├── advisors/
 │       │   ├── ai/
+│       │   ├── decisions/
+│       │   ├── evaluation/
+│       │   ├── orchestration/
+│       │   ├── research/
 │       │   └── conversations/
 │       └── main.py
 ├── tests/
 │   ├── test_ai_provider.py
 │   ├── test_conversation_contracts.py
+│   ├── test_decision_engine.py
 │   ├── test_domain_decisions.py
 │   ├── test_health.py
 │   └── test_settings.py
@@ -164,14 +184,23 @@ The current API supports creating a decision and incrementally attaching structu
 
 ```text
 POST /decisions
+GET  /decisions/{id}
+
 POST /decisions/{id}/alternatives
 POST /decisions/{id}/criteria
 POST /decisions/{id}/scores
 POST /decisions/{id}/evidence
 POST /decisions/{id}/risks
 POST /decisions/{id}/journal
-GET  /decisions/{id}
+
 GET  /decisions/{id}/report
+GET  /decisions/{id}/audit
+GET  /decisions/{id}/questions
+GET  /decisions/{id}/next-question
+GET  /decisions/{id}/research-plan
+GET  /decisions/{id}/advisors
+GET  /decisions/{id}/quality
+GET  /decisions/{id}/ai-critique
 ```
 
 The report combines deterministic scoring, risk analysis, evidence critique, and a human-review-required synthesis.
@@ -208,7 +237,7 @@ POST /conversations/{conversation_id}/messages
 GET  /conversations/{conversation_id}/messages
 ```
 
-The current conversation API is intentionally simple. Authentication, authorization, streaming responses, tool calls, adaptive interviews, and AI-generated conversation turns belong to later phases.
+The current conversation API is intentionally simple. Authentication, authorization, streaming responses, and tool execution remain later hardening/product phases.
 
 ## Domain Foundation
 
@@ -288,6 +317,9 @@ PORT=8000
 DATABASE_URL=postgresql+asyncpg://wealthbrain:wealthbrain@db:5432/wealthbrain
 DEFAULT_AI_PROVIDER=fake
 DEFAULT_AI_MODEL=wealthbrain-test
+AI_BASE_URL=https://api.openai.com/v1
+AI_TIMEOUT_SECONDS=30
+AI_API_KEY=<set outside source control>
 LOG_LEVEL=INFO
 CORS_ORIGINS=http://localhost:3000
 ```
