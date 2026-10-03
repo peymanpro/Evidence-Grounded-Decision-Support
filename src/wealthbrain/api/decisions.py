@@ -29,6 +29,7 @@ from wealthbrain.modules.decisions.service import DecisionService
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 from wealthbrain.modules.orchestration.service import DecisionAIService
+from wealthbrain.modules.research.service import ResearchService
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
 
@@ -130,3 +131,18 @@ async def get_quality_report(
 async def get_ai_critique(decision_id: UUID, service: Service) -> dict[str, str]:
     critique = await DecisionAIService(service).critique(decision_id)
     return {"content": critique}
+
+
+@router.get("/{decision_id}/research-plan")
+async def get_research_plan(decision_id: UUID, service: Service) -> dict[str, object]:
+    report = await service.report(decision_id)
+    questions = missing_questions(report)
+    plan = ResearchService().build_plan(
+        str(decision_id),
+        [
+            {"question": question, "purpose": "Fill a missing information or evidence gap."}
+            for question in questions
+            if "evidence" in question.lower()
+        ],
+    )
+    return plan.model_dump(mode="json")
