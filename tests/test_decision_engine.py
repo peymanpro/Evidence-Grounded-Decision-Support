@@ -98,7 +98,7 @@ def test_synthesis_never_marks_human_review_as_optional() -> None:
 
 def test_supporting_and_challenging_evidence_are_distinguished() -> None:
     decision_id = uuid4()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     evidence = [
         EvidenceResponse(
             id=uuid4(),
