@@ -7,6 +7,7 @@ from wealthbrain.infrastructure.models import (
     AlternativeRecord,
     CriterionRecord,
     DecisionRecord,
+    DecisionScoreRecord,
     EvidenceRecord,
     JournalEntryRecord,
     RiskRecord,
@@ -149,6 +150,3 @@ class DecisionRepository:
         await self.session.flush()
         await self.session.refresh(record)
         return record
-
-
-from wealthbrain.infrastructure.models import DecisionScoreRecord
