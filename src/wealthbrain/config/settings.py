@@ -20,10 +20,13 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     cors_origins: list[str] = Field(default_factory=list)
 
-    @field_validator("cors_origins")
+    @field_validator("cors_origins", mode="before")
     @classmethod
-    def validate_cors_origins(cls, value: list[str], info: ValidationInfo) -> list[str]:
-        origins = [origin.strip() for origin in value if origin.strip()]
+    def validate_cors_origins(
+        cls, value: list[str] | str, info: ValidationInfo
+    ) -> list[str]:
+        raw_origins = value.split(",") if isinstance(value, str) else value
+        origins = [origin.strip() for origin in raw_origins if origin.strip()]
         if info.data.get("app_env") == "production" and "*" in origins:
             raise ValueError("cors_origins must not contain '*' in production")
         return origins
