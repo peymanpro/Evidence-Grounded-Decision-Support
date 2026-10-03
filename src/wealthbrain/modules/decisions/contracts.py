@@ -160,6 +160,7 @@ class DecisionReport(BaseModel):
     criteria: list[CriterionResponse]
     evidence: list[EvidenceResponse]
     risks: list[RiskResponse]
+    score_count: int = Field(ge=0)
     quantitative: QuantitativeAnalysis
     risk_analysis: RiskAnalysis
     critique: CritiqueResult
