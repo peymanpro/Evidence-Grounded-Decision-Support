@@ -3,8 +3,8 @@ from uuid import UUID
 
 from wealthbrain.modules.decisions.contracts import (
     AlternativeResponse,
-    CritiqueResult,
     CriterionResponse,
+    CritiqueResult,
     EvidenceResponse,
     QuantitativeAnalysis,
     RiskAnalysis,
