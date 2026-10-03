@@ -85,7 +85,9 @@ class DecisionRepository:
         return list(result)
 
     async def add_evidence(self, decision_id: UUID, payload: EvidenceCreate) -> EvidenceRecord:
-        record = EvidenceRecord(decision_id=decision_id, **payload.model_dump())
+        values = payload.model_dump()
+        values["source_url"] = str(payload.source_url)
+        record = EvidenceRecord(decision_id=decision_id, **values)
         self.session.add(record)
         await self.session.flush()
         await self.session.refresh(record)
