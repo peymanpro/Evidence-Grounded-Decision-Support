@@ -5,6 +5,7 @@ from wealthbrain.modules.decisions.contracts import (
     AlternativeResponse,
     CriterionResponse,
     CritiqueResult,
+    DecisionScore,
     EvidenceResponse,
     QuantitativeAnalysis,
     RiskAnalysis,
@@ -31,12 +32,12 @@ def calculate_quantitative(
     if total_weight <= 0:
         return QuantitativeAnalysis(
             scores=[
-                {
-                    "alternative_id": alternative.id,
-                    "alternative_name": alternative.name,
-                    "weighted_score": 0.0,
-                    "normalized_score": 0.0,
-                }
+                DecisionScore(
+                    alternative_id=alternative.id,
+                    alternative_name=alternative.name,
+                    weighted_score=0.0,
+                    normalized_score=0.0,
+                )
                 for alternative in alternatives
             ],
             preferred_alternative_id=None,
@@ -45,7 +46,7 @@ def calculate_quantitative(
             confidence=0.0,
         )
 
-    results = []
+    results: list[DecisionScore] = []
     for alternative in alternatives:
         weighted = 0.0
         for criterion in criteria:
@@ -58,15 +59,15 @@ def calculate_quantitative(
             weighted += criterion.weight * normalized
         normalized_weighted = weighted / total_weight
         results.append(
-            {
-                "alternative_id": alternative.id,
-                "alternative_name": alternative.name,
-                "weighted_score": round(weighted, 6),
-                "normalized_score": round(normalized_weighted, 6),
-            }
+            DecisionScore(
+                alternative_id=alternative.id,
+                alternative_name=alternative.name,
+                weighted_score=round(weighted, 6),
+                normalized_score=round(normalized_weighted, 6),
+            )
         )
 
-    results.sort(key=lambda item: item["normalized_score"], reverse=True)
+    results.sort(key=lambda item: item.normalized_score, reverse=True)
     preferred = results[0] if results else None
     coverage = sum(
         criterion.weight
@@ -99,8 +100,8 @@ def calculate_quantitative(
 
     return QuantitativeAnalysis(
         scores=results,
-        preferred_alternative_id=preferred["alternative_id"] if preferred else None,
-        preferred_alternative_name=preferred["alternative_name"] if preferred else None,
+        preferred_alternative_id=preferred.alternative_id if preferred else None,
+        preferred_alternative_name=preferred.alternative_name if preferred else None,
         sensitivity=sensitivity,
         confidence=round(confidence, 6),
     )
