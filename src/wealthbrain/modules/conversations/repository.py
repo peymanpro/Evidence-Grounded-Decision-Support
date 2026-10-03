@@ -20,7 +20,7 @@ class ConversationRepository:
     async def get(self, conversation_id: UUID) -> ConversationRecord | None:
         return await self._session.get(ConversationRecord, conversation_id)
 
-    async def list(self) -> list[ConversationRecord]:
+    async def list_conversations(self) -> list[ConversationRecord]:
         result = await self._session.scalars(
             select(ConversationRecord).order_by(ConversationRecord.updated_at.desc())
         )
