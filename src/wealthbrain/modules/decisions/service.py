@@ -3,7 +3,6 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from wealthbrain.config.settings import get_settings
 from wealthbrain.modules.decisions.contracts import (
     AlternativeCreate,
     AlternativeResponse,
@@ -64,7 +63,8 @@ class DecisionService:
             await self._repo.add_score(decision_id, payload)
         except ValueError as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
             ) from exc
         await self._session.commit()
         return {"status": "stored"}
