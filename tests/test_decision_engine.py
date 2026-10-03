@@ -4,6 +4,8 @@ from uuid import uuid4
 from wealthbrain.modules.decisions.contracts import (
     AlternativeResponse,
     CriterionResponse,
+    DecisionReport,
+    DecisionResponse,
     EvidenceResponse,
     RiskResponse,
 )
@@ -13,6 +15,57 @@ from wealthbrain.modules.decisions.engine import (
     critique_decision,
     synthesize,
 )
+from wealthbrain.modules.decisions.interview import next_questions
+
+
+def make_decision(
+    *,
+    decision_type: str = "other",
+    capital_at_risk: float | None = None,
+    time_horizon_months: int | None = None,
+) -> DecisionResponse:
+    now = datetime.now(UTC)
+    return DecisionResponse(
+        id=uuid4(),
+        conversation_id=None,
+        decision="Compare alternatives",
+        decision_type=decision_type,
+        capital_at_risk=capital_at_risk,
+        time_horizon_months=time_horizon_months,
+        status="open",
+        created_at=now,
+        updated_at=now,
+    )
+
+
+def make_report(
+    decision: DecisionResponse,
+    alternatives: list[AlternativeResponse] | None = None,
+    criteria: list[CriterionResponse] | None = None,
+    evidence: list[EvidenceResponse] | None = None,
+    risks: list[RiskResponse] | None = None,
+    score_count: int = 0,
+) -> DecisionReport:
+    alternatives = alternatives or []
+    criteria = criteria or []
+    evidence = evidence or []
+    risks = risks or []
+    quantitative = calculate_quantitative(alternatives, criteria, {})
+    risk_analysis = calculate_risk(risks)
+    critique = critique_decision(evidence, risks, quantitative)
+    synthesis = synthesize(decision.id, quantitative, evidence, risk_analysis, critique)
+    return DecisionReport(
+        decision=decision,
+        alternatives=alternatives,
+        criteria=criteria,
+        evidence=evidence,
+        risks=risks,
+        score_count=score_count,
+        quantitative=quantitative,
+        risk_analysis=risk_analysis,
+        critique=critique,
+        synthesis=synthesis,
+    )
 
 
 def test_quantitative_analysis_ranks_alternatives() -> None:
@@ -129,38 +182,8 @@ def test_supporting_and_challenging_evidence_are_distinguished() -> None:
 
 
 def test_adaptive_interview_prioritizes_capital_exposure() -> None:
-    from wealthbrain.modules.decisions.contracts import DecisionCreate, DecisionResponse
-    from wealthbrain.modules.decisions.interview import next_questions
-
-    decision = DecisionResponse(
-        id=uuid4(),
-        conversation_id=None,
-        decision="Invest in an alternative",
-        decision_type="investment",
-        capital_at_risk=None,
-        time_horizon_months=None,
-        status="open",
-        created_at=datetime.now(UTC),
-        updated_at=datetime.now(UTC),
-    )
-    report = __import__("wealthbrain.modules.decisions.contracts", fromlist=["DecisionReport"]).DecisionReport(
-        decision=decision,
-        alternatives=[],
-        criteria=[],
-        evidence=[],
-        risks=[],
-        score_count=0,
-        quantitative=calculate_quantitative([], [], {}),
-        risk_analysis=calculate_risk([]),
-        critique=critique_decision([], [], calculate_quantitative([], [], {})),
-        synthesis=synthesize(
-            decision.id,
-            calculate_quantitative([], [], {}),
-            [],
-            calculate_risk([]),
-            critique_decision([], [], calculate_quantitative([], [], {})),
-        ),
-    )
+    decision = make_decision(decision_type="investment")
+    report = make_report(decision)
 
     questions = next_questions(report)
 
@@ -169,51 +192,84 @@ def test_adaptive_interview_prioritizes_capital_exposure() -> None:
 
 
 def test_adaptive_interview_detects_incomplete_score_matrix() -> None:
-    from wealthbrain.modules.decisions.contracts import (
-        AlternativeResponse,
-        CriterionResponse,
-        DecisionReport,
+    decision = make_decision(
+        decision_type="investment",
+        capital_at_risk=1000,
+        time_horizon_months=12,
     )
-    from wealthbrain.modules.decisions.interview import next_questions
-
-    decision_id = uuid4()
-    now = datetime.now(UTC)
     alternative = AlternativeResponse(
-        id=uuid4(), decision_id=decision_id, name="A", description=""
+        id=uuid4(), decision_id=decision.id, name="A", description=""
     )
     criterion = CriterionResponse(
         id=uuid4(),
-        decision_id=decision_id,
+        decision_id=decision.id,
         name="Return",
         weight=1.0,
         scale_min=0.0,
         scale_max=10.0,
     )
-    quantitative = calculate_quantitative([alternative], [criterion], {})
-    critique = critique_decision([], [], quantitative)
-    report = DecisionReport(
-        decision={
-            "id": decision_id,
-            "conversation_id": None,
-            "decision": "Compare",
-            "decision_type": "investment",
-            "capital_at_risk": 1000,
-            "time_horizon_months": 12,
-            "status": "open",
-            "created_at": now,
-            "updated_at": now,
-        },
+    report = make_report(
+        decision,
         alternatives=[alternative],
         criteria=[criterion],
-        evidence=[],
-        risks=[],
         score_count=0,
-        quantitative=quantitative,
-        risk_analysis=calculate_risk([]),
-        critique=critique,
-        synthesis=synthesize(decision_id, quantitative, [], calculate_risk([]), critique),
     )
 
     questions = next_questions(report)
 
     assert any(item.key == "scores" for item in questions)
+
+
+def test_adaptive_interview_stops_when_decision_is_complete() -> None:
+    decision = make_decision(
+        decision_type="investment",
+        capital_at_risk=1000,
+        time_horizon_months=12,
+    )
+    first = AlternativeResponse(
+        id=uuid4(), decision_id=decision.id, name="A", description=""
+    )
+    second = AlternativeResponse(
+        id=uuid4(), decision_id=decision.id, name="B", description=""
+    )
+    criterion = CriterionResponse(
+        id=uuid4(),
+        decision_id=decision.id,
+        name="Return",
+        weight=1.0,
+        scale_min=0.0,
+        scale_max=10.0,
+    )
+    now = datetime.now(UTC)
+    evidence = [
+        EvidenceResponse(
+            id=uuid4(),
+            decision_id=decision.id,
+            title="Source",
+            source_url="https://example.com/source",
+            claim="Relevant evidence.",
+            supports=True,
+            confidence=0.9,
+            created_at=now,
+        )
+    ]
+    risk = RiskResponse(
+        id=uuid4(),
+        decision_id=decision.id,
+        title="Market risk",
+        probability=0.2,
+        impact=5.0,
+        risk_score=1.0,
+        mitigation="Diversify",
+        created_at=now,
+    )
+    report = make_report(
+        decision,
+        alternatives=[first, second],
+        criteria=[criterion],
+        evidence=evidence,
+        risks=[risk],
+        score_count=2,
+    )
+
+    assert next_questions(report) == []
