@@ -9,8 +9,8 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response as StarletteResponse
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.responses import Response
 
 from wealthbrain.api.conversations import router as conversations_router
 from wealthbrain.api.decisions import router as decisions_router
@@ -20,11 +20,13 @@ from wealthbrain.infrastructure.database import create_engine, create_session_fa
 logger = logging.getLogger("wealthbrain")
 settings = get_settings()
 engine: AsyncEngine = create_engine(settings)
-session_factory: async_sessionmaker = create_session_factory(engine)
+session_factory: async_sessionmaker[AsyncSession] = create_session_factory(engine)
 
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next) -> StarletteResponse:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         request_id = request.headers.get("X-Request-ID") or str(uuid4())
         request.state.request_id = request_id
         started = time.perf_counter()
