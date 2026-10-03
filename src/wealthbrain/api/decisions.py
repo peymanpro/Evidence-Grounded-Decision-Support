@@ -22,7 +22,10 @@ from wealthbrain.modules.decisions.contracts import (
     RiskResponse,
     ScoreCreate,
 )
+from wealthbrain.modules.advisors.service import AdvisorService
+from wealthbrain.modules.decisions.interview import missing_questions
 from wealthbrain.modules.decisions.service import DecisionService
+from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
 
@@ -96,3 +99,21 @@ async def add_journal_entry(
 @router.get("/{decision_id}/report", response_model=DecisionReport)
 async def get_report(decision_id: UUID, service: Service) -> DecisionReport:
     return await service.report(decision_id)
+
+
+@router.get("/{decision_id}/questions", response_model=list[str])
+async def get_missing_questions(decision_id: UUID, service: Service) -> list[str]:
+    report = await service.report(decision_id)
+    return missing_questions(report)
+
+
+@router.get("/{decision_id}/advisors")
+async def get_advisor_panel(decision_id: UUID, service: Service) -> dict:
+    report = await service.report(decision_id)
+    return AdvisorService().review(report).model_dump(mode="json")
+
+
+@router.get("/{decision_id}/quality")
+async def get_quality_report(decision_id: UUID, service: Service) -> dict:
+    report = await service.report(decision_id)
+    return DecisionEvaluationService().evaluate(report).model_dump(mode="json")
