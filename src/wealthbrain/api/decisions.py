@@ -29,6 +29,7 @@ from wealthbrain.modules.decisions.service import DecisionService
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 from wealthbrain.modules.orchestration.service import DecisionAIService
+from wealthbrain.modules.research.contracts import ResearchQuestion
 from wealthbrain.modules.research.service import ResearchService
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
@@ -140,7 +141,10 @@ async def get_research_plan(decision_id: UUID, service: Service) -> dict[str, ob
     plan = ResearchService().build_plan(
         str(decision_id),
         [
-            {"question": question, "purpose": "Fill a missing information or evidence gap."}
+            ResearchQuestion(
+                question=question,
+                purpose="Fill a missing information or evidence gap.",
+            )
             for question in questions
             if "evidence" in question.lower()
         ],
