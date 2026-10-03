@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from wealthbrain.infrastructure.models import ConversationRecord
 from wealthbrain.modules.conversations.contracts import (
     ConversationCreate,
     ConversationResponse,
@@ -58,7 +59,7 @@ class ConversationService:
         records = await self._repository.list_messages(conversation_id)
         return [MessageResponse.model_validate(record) for record in records]
 
-    async def _require(self, conversation_id: UUID):
+    async def _require(self, conversation_id: UUID) -> ConversationRecord:
         record = await self._repository.get(conversation_id)
         if record is None:
             raise HTTPException(
