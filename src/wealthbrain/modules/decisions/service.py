@@ -124,6 +124,7 @@ class DecisionService:
             criteria=criterion_models,
             evidence=evidence_models,
             risks=risk_models,
+            score_count=len(stored_scores),
             quantitative=quantitative,
             risk_analysis=risk_analysis,
             critique=critique,
