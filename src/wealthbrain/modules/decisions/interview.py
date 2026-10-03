@@ -1,39 +1,90 @@
+from pydantic import BaseModel, Field
+
 from wealthbrain.modules.decisions.contracts import DecisionReport
 
 
-def missing_questions(report: DecisionReport) -> list[str]:
-    questions: list[str] = []
+class InterviewQuestion(BaseModel):
+    key: str = Field(min_length=1, max_length=50)
+    question: str = Field(min_length=1, max_length=1_000)
+    rationale: str = Field(min_length=1, max_length=1_000)
+
+
+def next_questions(report: DecisionReport) -> list[InterviewQuestion]:
+    questions: list[InterviewQuestion] = []
     decision = report.decision
 
-    if decision.conversation_id is None:
-        questions.append("Which conversation or context should this decision belong to?")
+    if decision.capital_at_risk is None and decision.decision_type in {
+        "investment",
+        "purchase",
+        "business",
+        "capital_allocation",
+    }:
+        questions.append(
+            InterviewQuestion(
+                key="capital_at_risk",
+                question="How much capital is actually at risk in this decision?",
+                rationale="Capital exposure materially changes the required evidence and risk threshold.",
+            )
+        )
+
+    if decision.time_horizon_months is None:
+        questions.append(
+            InterviewQuestion(
+                key="time_horizon",
+                question="What time horizon should be used when judging the outcome?",
+                rationale="A decision cannot be evaluated consistently without a defined horizon.",
+            )
+        )
 
     if not report.alternatives:
-        questions.append("What realistic alternatives should be compared with the current option?")
+        questions.append(
+            InterviewQuestion(
+                key="alternatives",
+                question="What realistic alternatives should be compared with the current option?",
+                rationale="A decision should be compared against credible alternatives rather than evaluated in isolation.",
+            )
+        )
 
     if not report.criteria:
         questions.append(
-            "Which criteria matter most, and how should their relative weights be set?"
+            InterviewQuestion(
+                key="criteria",
+                question="Which criteria matter most, and how should their relative weights be set?",
+                rationale="Weighted criteria make the trade-offs explicit and auditable.",
+            )
         )
 
-    if report.criteria and report.alternatives:
-        expected = len(report.criteria) * len(report.alternatives)
+    if report.alternatives and report.criteria:
+        expected = len(report.alternatives) * len(report.criteria)
         if report.score_count < expected:
-            questions.append("Which alternative/criterion scores are still missing?")
+            questions.append(
+                InterviewQuestion(
+                    key="scores",
+                    question="Which alternative/criterion scores are still missing?",
+                    rationale="Incomplete scoring weakens the quantitative comparison and its confidence.",
+                )
+            )
 
     if not report.evidence:
         questions.append(
-            "What evidence or source material supports or challenges "
-            "the key assumptions?"
+            InterviewQuestion(
+                key="evidence",
+                question="What evidence or source material supports or challenges the key assumptions?",
+                rationale="Claims without inspectable evidence should not drive a high-confidence conclusion.",
+            )
         )
 
     if not report.risks:
         questions.append(
-            "What could make the preferred option fail, and how "
-            "would you mitigate it?"
+            InterviewQuestion(
+                key="risks",
+                question="What could make the preferred option fail, and how would you mitigate it?",
+                rationale="Explicit downside scenarios make risk visible before action.",
+            )
         )
 
-    if decision.time_horizon_months is None:
-        questions.append("What time horizon should be used when judging the outcome?")
-
     return questions
+
+
+def missing_questions(report: DecisionReport) -> list[str]:
+    return [item.question for item in next_questions(report)]
