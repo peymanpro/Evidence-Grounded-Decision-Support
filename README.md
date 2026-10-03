@@ -290,9 +290,20 @@ uv sync --all-groups
 
 ### Run the API
 
+For host-based development, set `DATABASE_URL` in `.env` to a PostgreSQL instance reachable from the host, for example:
+
+```env
+DATABASE_URL=postgresql+asyncpg://wealthbrain:wealthbrain@localhost:5432/wealthbrain
+```
+
+Then:
+
 ```powershell
+uv run alembic upgrade head
 uv run uvicorn wealthbrain.main:app --reload
 ```
+
+FastAPI exposes interactive API documentation at `/docs`, alternative documentation at `/redoc`, and the OpenAPI schema at `/openapi.json`.
 
 ### Run checks
 
@@ -309,6 +320,8 @@ Create a local `.env` based on `.env.example`, then:
 ```powershell
 docker compose up --build
 ```
+
+Docker Compose overrides `DATABASE_URL` so the API connects to the `db` service.
 
 The API is exposed on port `8000` by default.
 
