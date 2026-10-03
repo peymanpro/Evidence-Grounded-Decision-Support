@@ -9,6 +9,7 @@ from wealthbrain.modules.decisions.contracts import (
     AlternativeResponse,
     CriterionCreate,
     CriterionResponse,
+    AuditEventResponse,
     DecisionCreate,
     DecisionReport,
     DecisionResponse,
@@ -36,6 +37,7 @@ class DecisionService:
 
     async def create(self, payload: DecisionCreate) -> DecisionResponse:
         record = await self._repo.create_decision(payload)
+        await self._repo.add_audit_event(record.id, "decision_created")
         await self._session.commit()
         return DecisionResponse.model_validate(record)
 
@@ -47,6 +49,7 @@ class DecisionService:
     ) -> AlternativeResponse:
         await self._require(decision_id)
         record = await self._repo.add_alternative(decision_id, payload)
+        await self._repo.add_audit_event(decision_id, "alternative_added", {"alternative_id": str(record.id)})
         await self._session.commit()
         return AlternativeResponse.model_validate(record)
 
@@ -55,18 +58,27 @@ class DecisionService:
     ) -> CriterionResponse:
         await self._require(decision_id)
         record = await self._repo.add_criterion(decision_id, payload)
+        await self._repo.add_audit_event(decision_id, "criterion_added", {"criterion_id": str(record.id)})
         await self._session.commit()
         return CriterionResponse.model_validate(record)
 
     async def add_score(self, decision_id: UUID, payload: ScoreCreate) -> dict[str, str]:
         await self._require(decision_id)
         try:
-            await self._repo.add_score(decision_id, payload)
+                await self._repo.add_score(decision_id, payload)
         except ValueError as exc:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=str(exc),
             ) from exc
+        await self._repo.add_audit_event(
+            decision_id,
+            "score_stored",
+            {
+                "criterion_id": str(payload.criterion_id),
+                "alternative_id": str(payload.alternative_id),
+            },
+        )
         await self._session.commit()
         return {"status": "stored"}
 
@@ -75,12 +87,14 @@ class DecisionService:
     ) -> EvidenceResponse:
         await self._require(decision_id)
         record = await self._repo.add_evidence(decision_id, payload)
+        await self._repo.add_audit_event(decision_id, "evidence_added", {"evidence_id": str(record.id)})
         await self._session.commit()
         return EvidenceResponse.model_validate(record)
 
     async def add_risk(self, decision_id: UUID, payload: RiskCreate) -> RiskResponse:
         await self._require(decision_id)
         record = await self._repo.add_risk(decision_id, payload)
+        await self._repo.add_audit_event(decision_id, "risk_added", {"risk_id": str(record.id)})
         await self._session.commit()
         return RiskResponse.model_validate(record)
 
@@ -89,6 +103,9 @@ class DecisionService:
     ) -> JournalEntryResponse:
         await self._require(decision_id)
         record = await self._repo.add_journal_entry(decision_id, payload)
+        await self._repo.add_audit_event(
+            decision_id, "journal_entry_added", {"journal_entry_id": str(record.id)}
+        )
         await self._session.commit()
         return JournalEntryResponse.model_validate(record)
 
@@ -131,6 +148,11 @@ class DecisionService:
             critique=critique,
             synthesis=synthesis,
         )
+
+    async def audit(self, decision_id: UUID) -> list[AuditEventResponse]:
+        await self._require(decision_id)
+        events = await self._repo.list_audit_events(decision_id)
+        return [AuditEventResponse.model_validate(event) for event in events]
 
     async def _require(self, decision_id: UUID) -> DecisionRecord:
         record = await self._repo.get_decision(decision_id)
