@@ -41,6 +41,6 @@ def test_factory_creates_fake_provider_without_credentials() -> None:
     assert isinstance(create_ai_provider(Settings(default_ai_provider="fake")), FakeAIProvider)
 
 
-def test_factory_rejects_unconfigured_real_provider() -> None:
-    with pytest.raises(ValueError, match="not enabled"):
+def test_factory_requires_credentials_for_real_provider() -> None:
+    with pytest.raises(ValueError, match="AI_API_KEY"):
         create_ai_provider(Settings(default_ai_provider="openai"))
