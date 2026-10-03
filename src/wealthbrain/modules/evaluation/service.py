@@ -41,7 +41,10 @@ class DecisionEvaluationService:
             QualityCheck(
                 name="score_coverage",
                 score=score_coverage,
-                explanation="Complete alternative-by-criterion scoring improves quantitative completeness.",
+                explanation=(
+                    "Complete alternative-by-criterion scoring improves "
+                    "quantitative completeness."
+                ),
             ),
         ]
 
