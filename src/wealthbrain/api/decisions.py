@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from wealthbrain.infrastructure.database import session_dependency
+from wealthbrain.modules.advisors.service import AdvisorService
 from wealthbrain.modules.decisions.contracts import (
     AlternativeCreate,
     AlternativeResponse,
@@ -22,7 +23,6 @@ from wealthbrain.modules.decisions.contracts import (
     RiskResponse,
     ScoreCreate,
 )
-from wealthbrain.modules.advisors.service import AdvisorService
 from wealthbrain.modules.decisions.interview import missing_questions
 from wealthbrain.modules.decisions.service import DecisionService
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
