@@ -115,6 +115,16 @@ class JournalEntryResponse(JournalEntryCreate):
     model_config = {"from_attributes": True}
 
 
+class AuditEventResponse(BaseModel):
+    id: UUID
+    decision_id: UUID
+    event_type: str
+    payload: dict[str, object]
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class DecisionScore(BaseModel):
     alternative_id: UUID
     alternative_name: str
