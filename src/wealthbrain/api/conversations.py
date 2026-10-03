@@ -41,7 +41,7 @@ async def create_conversation(
 
 @router.get("", response_model=list[ConversationResponse])
 async def list_conversations(service: Service) -> list[ConversationResponse]:
-    return await service.list()
+    return await service.list_conversations()
 
 
 @router.get("/{conversation_id}", response_model=ConversationResponse)
