@@ -25,7 +25,6 @@ from wealthbrain.modules.decisions.contracts import (
     RiskResponse,
     ScoreCreate,
 )
-
 from wealthbrain.modules.decisions.interview import (
     InterviewQuestion,
     missing_questions,
