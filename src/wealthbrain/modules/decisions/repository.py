@@ -6,12 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from wealthbrain.infrastructure.models import (
     AlternativeRecord,
     CriterionRecord,
+    DecisionAuditEventRecord,
     DecisionRecord,
     DecisionScoreRecord,
     EvidenceRecord,
     JournalEntryRecord,
     RiskRecord,
-    DecisionAuditEventRecord,
 )
 from wealthbrain.modules.decisions.contracts import (
     AlternativeCreate,
