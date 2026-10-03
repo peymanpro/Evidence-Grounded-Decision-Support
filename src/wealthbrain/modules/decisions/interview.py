@@ -16,11 +16,7 @@ def missing_questions(report: DecisionReport) -> list[str]:
 
     if report.criteria and report.alternatives:
         expected = len(report.criteria) * len(report.alternatives)
-        actual = len({
-            (score.alternative_id, score.criterion_id)
-            for score in []
-        })
-        if actual < expected:
+        if report.score_count < expected:
             questions.append("Which alternative/criterion scores are still missing?")
 
     if not report.evidence:
