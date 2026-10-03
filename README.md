@@ -48,10 +48,10 @@ Its long-term focus is therefore **decision intelligence**, not:
 
 ## Current Status
 
-**Version:** `0.1.0`  
+**Version:** `0.2.0`  
 **Repository:** Private  
-**Current phase:** Phase 01 — Project Foundation  
-**Implementation state:** Foundation scaffold implemented; further phases are intentionally unfinished.
+**Current phase:** Decision Intelligence Core — post-Phase 01 foundation  
+**Implementation state:** Foundation plus the first decision-intelligence core are implemented; later research, knowledge, specialist, and production phases remain on the roadmap.
 
 Phase 01 currently contains:
 
@@ -67,7 +67,7 @@ Phase 01 currently contains:
 - Docker and Docker Compose support;
 - CI checks for Ruff, mypy, pytest, and Docker build.
 
-Real model integration, research, evidence, quantitative analysis, specialist advisors, critique, synthesis, evaluation, observability, and deployment are **not yet implemented** in the current release.
+Real model integration is now available through the OpenAI-compatible adapter. Research automation, broader knowledge management, specialist modules, full evaluation, observability, and production hardening remain incomplete.
 
 ## Core Product Idea
 
@@ -158,6 +158,24 @@ wealth-brain/
 └── README.md
 ```
 
+## Decision Workspace API
+
+The current API supports creating a decision and incrementally attaching structured context before requesting a report.
+
+```text
+POST /decisions
+POST /decisions/{id}/alternatives
+POST /decisions/{id}/criteria
+POST /decisions/{id}/scores
+POST /decisions/{id}/evidence
+POST /decisions/{id}/risks
+POST /decisions/{id}/journal
+GET  /decisions/{id}
+GET  /decisions/{id}/report
+```
+
+The report combines deterministic scoring, risk analysis, evidence critique, and a human-review-required synthesis.
+
 ## Current API
 
 The Phase 01 API provides the minimum persistence boundary needed for the later conversation system.
@@ -242,7 +260,7 @@ The planned architecture can later accommodate providers such as OpenAI, Anthrop
 
 ## Persistence
 
-The foundation uses:
+The application uses:
 
 - PostgreSQL 16;
 - SQLAlchemy 2.x asynchronous APIs;
@@ -551,4 +569,4 @@ The repository is intended for personal development and experimentation around t
 
 ## License
 
-No public open-source licensing commitment is currently declared for this private repository.
+The repository currently carries the MIT License and is being prepared for a possible future public release. The repository remains private until that decision is made.
