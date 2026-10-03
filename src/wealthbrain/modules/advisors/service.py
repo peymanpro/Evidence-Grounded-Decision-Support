@@ -37,7 +37,7 @@ class AdvisorService:
                     f"Aggregate risk score: {report.risk_analysis.total_risk_score:.2f}.",
                 ],
                 questions=[
-                    item["title"] + " — what is the concrete mitigation trigger?"
+                    str(item["title"]) + " — what is the concrete mitigation trigger?"
                     for item in report.risk_analysis.risks[:3]
                 ],
             ),
