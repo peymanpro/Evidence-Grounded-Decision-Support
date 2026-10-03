@@ -1,7 +1,7 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 
 class DecisionCreate(BaseModel):
@@ -49,7 +49,7 @@ class CriterionCreate(BaseModel):
 
     @field_validator("scale_max")
     @classmethod
-    def validate_scale(cls, value: float, info) -> float:
+    def validate_scale(cls, value: float, info: ValidationInfo) -> float:
         minimum = info.data.get("scale_min", 0.0)
         if value <= minimum:
             raise ValueError("scale_max must be greater than scale_min")
@@ -133,7 +133,7 @@ class QuantitativeAnalysis(BaseModel):
 class RiskAnalysis(BaseModel):
     total_risk_score: float = Field(ge=0)
     high_risk_count: int = Field(ge=0)
-    risks: list[dict]
+    risks: list[dict[str, object]]
 
 
 class CritiqueResult(BaseModel):
