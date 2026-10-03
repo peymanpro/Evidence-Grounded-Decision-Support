@@ -48,7 +48,6 @@ def calculate_quantitative(
     results = []
     for alternative in alternatives:
         weighted = 0.0
-        covered_weight = 0.0
         for criterion in criteria:
             score = scores.get((alternative.id, criterion.id))
             if score is None:
@@ -57,7 +56,6 @@ def calculate_quantitative(
             normalized = (score - criterion.scale_min) / span if span else 0.0
             normalized = max(0.0, min(1.0, normalized))
             weighted += criterion.weight * normalized
-            covered_weight += criterion.weight
         normalized_weighted = weighted / total_weight
         results.append(
             {
