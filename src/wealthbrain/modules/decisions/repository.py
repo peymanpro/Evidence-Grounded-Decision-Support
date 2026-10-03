@@ -52,7 +52,9 @@ class DecisionRepository:
         )
         return list(result)
 
-    async def add_alternative(self, decision_id: UUID, payload: AlternativeCreate) -> AlternativeRecord:
+    async def add_alternative(
+        self, decision_id: UUID, payload: AlternativeCreate
+    ) -> AlternativeRecord:
         record = AlternativeRecord(decision_id=decision_id, **payload.model_dump())
         self.session.add(record)
         await self.session.flush()
