@@ -3,6 +3,8 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from wealthbrain.infrastructure.models import DecisionRecord
+
 from wealthbrain.modules.decisions.contracts import (
     AlternativeCreate,
     AlternativeResponse,
@@ -131,7 +133,7 @@ class DecisionService:
             synthesis=synthesis,
         )
 
-    async def _require(self, decision_id: UUID):
+    async def _require(self, decision_id: UUID) -> DecisionRecord:
         record = await self._repo.get_decision(decision_id)
         if record is None:
             raise HTTPException(
