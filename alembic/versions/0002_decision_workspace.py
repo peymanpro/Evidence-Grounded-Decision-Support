@@ -23,8 +23,12 @@ def upgrade() -> None:
         sa.Column("capital_at_risk", sa.Float(), nullable=True),
         sa.Column("time_horizon_months", sa.Integer(), nullable=True),
         sa.Column("status", sa.String(length=30), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False
+        ),
         sa.ForeignKeyConstraint(["conversation_id"], ["conversations.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -40,7 +44,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["decision_id"], ["decisions.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("ix_decision_alternatives_decision_id", "decision_alternatives", ["decision_id"])
+    op.create_index(
+        "ix_decision_alternatives_decision_id", "decision_alternatives", ["decision_id"]
+    )
 
     op.create_table(
         "decision_criteria",
@@ -54,7 +60,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["decision_id"], ["decisions.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("ix_decision_criteria_decision_id", "decision_criteria", ["decision_id"])
+    op.create_index(
+        "ix_decision_criteria_decision_id", "decision_criteria", ["decision_id"]
+    )
 
     op.create_table(
         "decision_scores",
@@ -65,7 +73,9 @@ def upgrade() -> None:
         sa.Column("score", sa.Float(), nullable=False),
         sa.ForeignKeyConstraint(["decision_id"], ["decisions.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["criterion_id"], ["decision_criteria.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["alternative_id"], ["decision_alternatives.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["alternative_id"], ["decision_alternatives.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("ix_decision_scores_decision_id", "decision_scores", ["decision_id"])
@@ -85,7 +95,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["decision_id"], ["decisions.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("ix_decision_evidence_decision_id", "decision_evidence", ["decision_id"])
+    op.create_index(
+        "ix_decision_evidence_decision_id", "decision_evidence", ["decision_id"]
+    )
 
     op.create_table(
         "decision_risks",
@@ -121,7 +133,9 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index("ix_decision_journal_entries_decision_id", table_name="decision_journal_entries")
+    op.drop_index(
+        "ix_decision_journal_entries_decision_id", table_name="decision_journal_entries"
+    )
     op.drop_table("decision_journal_entries")
     op.drop_index("ix_decision_risks_decision_id", table_name="decision_risks")
     op.drop_table("decision_risks")
@@ -133,7 +147,9 @@ def downgrade() -> None:
     op.drop_table("decision_scores")
     op.drop_index("ix_decision_criteria_decision_id", table_name="decision_criteria")
     op.drop_table("decision_criteria")
-    op.drop_index("ix_decision_alternatives_decision_id", table_name="decision_alternatives")
+    op.drop_index(
+        "ix_decision_alternatives_decision_id", table_name="decision_alternatives"
+    )
     op.drop_table("decision_alternatives")
     op.drop_index("ix_decisions_conversation_id", table_name="decisions")
     op.drop_table("decisions")
