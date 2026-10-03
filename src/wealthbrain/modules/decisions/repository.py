@@ -11,6 +11,7 @@ from wealthbrain.infrastructure.models import (
     EvidenceRecord,
     JournalEntryRecord,
     RiskRecord,
+    DecisionAuditEventRecord,
 )
 from wealthbrain.modules.decisions.contracts import (
     AlternativeCreate,
@@ -158,3 +159,30 @@ class DecisionRepository:
         await self.session.flush()
         await self.session.refresh(record)
         return record
+
+
+    async def add_audit_event(
+        self,
+        decision_id: UUID,
+        event_type: str,
+        payload: dict[str, object] | None = None,
+    ) -> DecisionAuditEventRecord:
+        record = DecisionAuditEventRecord(
+            decision_id=decision_id,
+            event_type=event_type,
+            payload=payload or {},
+        )
+        self.session.add(record)
+        await self.session.flush()
+        await self.session.refresh(record)
+        return record
+
+    async def list_audit_events(
+        self, decision_id: UUID
+    ) -> list[DecisionAuditEventRecord]:
+        result = await self.session.scalars(
+            select(DecisionAuditEventRecord)
+            .where(DecisionAuditEventRecord.decision_id == decision_id)
+            .order_by(DecisionAuditEventRecord.created_at.asc())
+        )
+        return list(result)
