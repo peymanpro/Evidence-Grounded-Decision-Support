@@ -4,7 +4,6 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from wealthbrain.infrastructure.models import DecisionRecord
-
 from wealthbrain.modules.decisions.contracts import (
     AlternativeCreate,
     AlternativeResponse,
