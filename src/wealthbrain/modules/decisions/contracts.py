@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, HttpUrl, ValidationInfo, field_validator
@@ -69,12 +70,32 @@ class ScoreCreate(BaseModel):
     score: float
 
 
+class EvidenceProvenance(BaseModel):
+    publisher: str | None = Field(default=None, max_length=300)
+    retrieved_at: datetime | None = None
+    status_code: int | None = Field(default=None, ge=100, le=599)
+    content_type: str | None = Field(default=None, max_length=120)
+    content_sha256: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$"
+    )
+    content_length_bytes: int | None = Field(default=None, ge=0)
+    excerpt: str | None = Field(default=None, max_length=5_000)
+    locator: str | None = Field(default=None, max_length=500)
+
+
 class EvidenceCreate(BaseModel):
     title: str = Field(min_length=1, max_length=300)
     source_url: HttpUrl
     claim: str = Field(min_length=1, max_length=5_000)
     supports: bool = True
     confidence: float = Field(default=0.5, ge=0, le=1)
+    quality: Literal[
+        "unverified",
+        "partially_verified",
+        "verified",
+        "challenged",
+    ] = "unverified"
+    provenance: EvidenceProvenance = Field(default_factory=EvidenceProvenance)
 
 
 class EvidenceResponse(EvidenceCreate):
