@@ -15,9 +15,9 @@ from starlette.responses import JSONResponse, Response
 from wealthbrain.api.conversations import router as conversations_router
 from wealthbrain.api.decisions import router as decisions_router
 from wealthbrain.api.knowledge import router as knowledge_router
+from wealthbrain.api.security import require_api_key
 from wealthbrain.config.settings import get_settings
 from wealthbrain.infrastructure.database import create_engine, create_session_factory
-from wealthbrain.api.security import require_api_key
 from wealthbrain.security.rate_limit import RateLimiter
 
 logger = logging.getLogger("wealthbrain")
