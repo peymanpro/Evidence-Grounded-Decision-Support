@@ -31,6 +31,9 @@ class Settings(BaseSettings):
         min_length=1,
         max_length=200,
     )
+    api_key: str | None = None
+    rate_limit_requests: int = Field(default=60, ge=1, le=10_000)
+    rate_limit_window_seconds: float = Field(default=60.0, gt=0, le=3_600)
     log_level: str = "INFO"
     cors_origins: list[str] = Field(default_factory=list)
 
