@@ -11,7 +11,10 @@ from wealthbrain.modules.research.contracts import (
     ResearchSearchResult,
     SourceDocument,
 )
-from wealthbrain.modules.research.factory import create_research_provider, create_source_fetcher
+from wealthbrain.modules.research.factory import (
+    create_research_provider,
+    create_source_fetcher,
+)
 from wealthbrain.modules.research.normalizer import normalize_source
 from wealthbrain.modules.research.providers import (
     HttpJsonSearchProvider,
