@@ -26,8 +26,6 @@ from wealthbrain.modules.research.providers import (
     validate_external_url,
 )
 from wealthbrain.modules.research.service import ResearchService
-
-
 PUBLIC_URL = "https://93.184.216.34/article"
 
 
