@@ -73,3 +73,12 @@ class KnowledgeService:
         ).lower()
         matches = sum(token in text for token in tokens)
         return round(min(1.0, matches / len(tokens)), 6)
+
+
+    async def related_to_decision(
+        self,
+        decision_type: str,
+        query: str,
+        limit: int = 5,
+    ) -> list[HistoricalCaseSearchResult]:
+        return await self.search(query, decision_type, limit)
