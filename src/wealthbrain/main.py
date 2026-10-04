@@ -14,6 +14,7 @@ from starlette.responses import Response
 
 from wealthbrain.api.conversations import router as conversations_router
 from wealthbrain.api.decisions import router as decisions_router
+from wealthbrain.api.knowledge import router as knowledge_router
 from wealthbrain.config.settings import get_settings
 from wealthbrain.infrastructure.database import create_engine, create_session_factory
 
@@ -66,6 +67,7 @@ app.add_middleware(
 )
 app.include_router(conversations_router)
 app.include_router(decisions_router)
+app.include_router(knowledge_router)
 
 
 @app.get("/health", tags=["health"])
