@@ -40,8 +40,8 @@ from wealthbrain.modules.evaluation.artifact import (
     EvaluationArtifact,
     build_evaluation_artifact,
 )
-from wealthbrain.modules.evaluation.interop import to_evaluation_suite_payload
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
+from wealthbrain.modules.evaluation.interop import to_evaluation_suite_payload
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 from wealthbrain.modules.evidence.contracts import EvidenceSufficiency
 from wealthbrain.modules.knowledge.contracts import HistoricalCaseSearchResult
