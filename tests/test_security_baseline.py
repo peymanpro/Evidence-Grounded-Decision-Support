@@ -39,6 +39,7 @@ def test_production_rejects_missing_api_key(monkeypatch) -> None:
         lambda: Settings(
             app_env="production",
             api_key="expected",
+            trusted_hosts=["example.com"],
         ),
     )
 
