@@ -31,6 +31,10 @@ class SourceFetchError(RuntimeError):
     """A source could not be fetched safely."""
 
 
+class ResponseTooLargeError(RuntimeError):
+    """A provider or source exceeded the configured byte limit."""
+
+
 class ResearchProvider(ABC):
     @abstractmethod
     async def search(
@@ -206,6 +210,8 @@ class HttpSourceFetcher(SourceFetcher):
             raise
         except httpx.TimeoutException as exc:
             raise SourceFetchError("Source fetch timed out.") from exc
+        except ResponseTooLargeError as exc:
+            raise SourceFetchError(str(exc)) from exc
         except httpx.HTTPError as exc:
             raise SourceFetchError("Source fetch failed.") from exc
 
@@ -262,11 +268,11 @@ async def _bounded_response_bytes(
     if header_length:
         try:
             if int(header_length) > max_bytes:
-                raise ResearchProviderError("Provider response exceeds configured byte limit.")
+                raise ResponseTooLargeError("Response exceeds configured byte limit.")
         except ValueError:
             pass
 
     data = response.content
     if len(data) > max_bytes:
-        raise ResearchProviderError("Provider response exceeds configured byte limit.")
+        raise ResponseTooLargeError("Response exceeds configured byte limit.")
     return data
