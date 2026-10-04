@@ -60,7 +60,6 @@ from wealthbrain.modules.safety.contracts import (
     SafetyCheckRequest,
     SafetyCheckResponse,
 )
-from wealthbrain.modules.knowledge.contracts import HistoricalCaseSearchResult
 from wealthbrain.modules.safety.service import SafetyPolicy
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
