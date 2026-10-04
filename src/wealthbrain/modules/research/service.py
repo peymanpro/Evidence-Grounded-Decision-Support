@@ -13,8 +13,8 @@ from wealthbrain.modules.research.contracts import (
 from wealthbrain.modules.research.normalizer import normalize_source
 from wealthbrain.modules.research.providers import (
     ResearchProvider,
-    SourceFetchError,
     SourceFetcher,
+    SourceFetchError,
 )
 
 
