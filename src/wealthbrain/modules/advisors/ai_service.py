@@ -2,10 +2,10 @@ from typing import Final
 from uuid import UUID
 
 from wealthbrain.config.settings import get_settings
+from wealthbrain.modules.advisors.contracts import AdvisorResponse, AdvisorRole
 from wealthbrain.modules.ai.contracts import CompletionRequest
 from wealthbrain.modules.ai.factory import create_ai_provider
 from wealthbrain.modules.ai.provider import AIProvider
-from wealthbrain.modules.advisors.contracts import AdvisorResponse, AdvisorRole
 from wealthbrain.modules.decisions.service import DecisionService
 
 
