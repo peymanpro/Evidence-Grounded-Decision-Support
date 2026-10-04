@@ -5,23 +5,44 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
 from wealthbrain.api.conversations import router as conversations_router
 from wealthbrain.api.decisions import router as decisions_router
 from wealthbrain.api.knowledge import router as knowledge_router
 from wealthbrain.config.settings import get_settings
 from wealthbrain.infrastructure.database import create_engine, create_session_factory
+from wealthbrain.api.security import require_api_key
+from wealthbrain.security.rate_limit import RateLimiter
 
 logger = logging.getLogger("wealthbrain")
 settings = get_settings()
 engine: AsyncEngine = create_engine(settings)
 session_factory: async_sessionmaker[AsyncSession] = create_session_factory(engine)
+rate_limiter = RateLimiter(
+    limit=settings.rate_limit_requests,
+    window_seconds=settings.rate_limit_window_seconds,
+)
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        if request.url.path in {"/health", "/health/ready"}:
+            return await call_next(request)
+        client_key = request.client.host if request.client else "unknown"
+        if not await rate_limiter.allow(client_key):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Rate limit exceeded."},
+            )
+        return await call_next(request)
 
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
@@ -57,6 +78,7 @@ app = FastAPI(
     description="Decision intelligence for structured, evidence-aware decision workflows.",
     lifespan=lifespan,
 )
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(RequestContextMiddleware)
 app.add_middleware(
     CORSMiddleware,
@@ -65,9 +87,18 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
 )
-app.include_router(conversations_router)
-app.include_router(decisions_router)
-app.include_router(knowledge_router)
+app.include_router(
+    conversations_router,
+    dependencies=[Depends(require_api_key)],
+)
+app.include_router(
+    decisions_router,
+    dependencies=[Depends(require_api_key)],
+)
+app.include_router(
+    knowledge_router,
+    dependencies=[Depends(require_api_key)],
+)
 
 
 @app.get("/health", tags=["health"])
