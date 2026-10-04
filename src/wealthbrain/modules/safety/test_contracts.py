@@ -10,9 +10,10 @@ def test_external_action_is_a_bounded_intent() -> None:
         human_review_required=True,
         reasons=["Not executable."],
     )
+
     assert response.allowed is False
 
 
 def test_unsupported_safety_intent_is_rejected_by_validation() -> None:
     with pytest.raises(ValueError):
-        SafetyCheckRequest(intent="execute_trade")  # type: ignore[arg-type]
+        SafetyCheckRequest(intent="invalid_intent")  # type: ignore[arg-type]
