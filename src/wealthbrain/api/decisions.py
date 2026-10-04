@@ -44,6 +44,7 @@ from wealthbrain.modules.evaluation.artifact import (
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 from wealthbrain.modules.evidence.contracts import EvidenceSufficiency
+from wealthbrain.modules.knowledge.contracts import HistoricalCaseSearchResult
 from wealthbrain.modules.orchestration.service import DecisionAIService
 from wealthbrain.modules.research.contracts import (
     ResearchExecutionRequest,
