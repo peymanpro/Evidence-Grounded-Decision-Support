@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
 from wealthbrain.modules.decisions.contracts import (
@@ -14,7 +15,7 @@ from wealthbrain.modules.evaluation.interop import (
 )
 
 
-def make_artifact():
+def make_artifact() -> Any:
     now = datetime.now(UTC)
     decision = DecisionResponse(
         id=uuid4(),
@@ -77,7 +78,11 @@ def test_interop_payload_matches_evaluation_suite_shape() -> None:
 
     assert payload["version"] == "wealthbrain-0.3"
     assert len(payload["cases"]) == 3
-    assert all({"id", "input", "expected", "metadata", "tags", "risk_category"} <= set(case) for case in payload["cases"])
+    assert all(
+        {"id", "input", "expected", "metadata", "tags", "risk_category"}
+        <= set(case)
+        for case in payload["cases"]
+    )
     assert payload["metadata"]["input_fingerprint"] == artifact.evaluation_input_sha256
 
 
