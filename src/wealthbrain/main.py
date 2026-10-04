@@ -74,7 +74,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     title="WealthBrain API",
-    version="0.3.0",
+    version="0.3.1",
     description="Decision intelligence for structured, evidence-aware decision workflows.",
     lifespan=lifespan,
 )
