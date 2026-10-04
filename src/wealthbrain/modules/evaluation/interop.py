@@ -78,7 +78,7 @@ def to_evaluation_suite_payload(
         },
     ]
 
-    payload = {
+    payload: dict[str, Any] = {
         "version": suite_version,
         "cases": cases,
     }
