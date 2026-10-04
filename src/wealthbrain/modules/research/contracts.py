@@ -74,6 +74,7 @@ class ResearchPlan(BaseModel):
 
 
 class ResearchRun(BaseModel):
+    id: str | None = None
     question: ResearchQuestion
     provider: str
     started_at: datetime
