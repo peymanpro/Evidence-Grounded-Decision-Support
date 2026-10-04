@@ -254,9 +254,5 @@ async def test_http_source_fetcher_enforces_response_limit() -> None:
 def test_research_factories_are_safe_by_default() -> None:
     settings = Settings(default_research_provider="fake")
 
-    assert awaitable_type(create_research_provider(settings))
+    assert isinstance(create_research_provider(settings), StaticResearchProvider)
     assert isinstance(create_source_fetcher(settings), HttpSourceFetcher)
-
-
-def awaitable_type(value: object) -> bool:
-    return isinstance(value, StaticResearchProvider)
