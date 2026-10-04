@@ -13,4 +13,14 @@ The software may organize evidence, compare alternatives, calculate deterministi
 - External model output is treated as fallible.
 - Credentials and private user data must remain outside source control.
 
-As the system grows, these boundaries should become executable policy and regression tests rather than remaining documentation only.
+## Executable policy
+
+The current safety policy is implemented in `src/wealthbrain/modules/safety/service.py` and exposed through the decision safety-check API.
+
+- `analysis` is allowed as decision support while retaining human review.
+- `recommendation` is blocked without acknowledgement, sufficient evidence, or when high-risk items remain.
+- `external_action` is denied by the application boundary.
+
+The policy is covered by automated regression tests in `tests/test_ai_safety_integration.py` and `tests/test_safety_contracts.py`.
+
+Broader adversarial testing, sensitive-data controls, and final public-deployment review remain future hardening work.
