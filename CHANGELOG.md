@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1
+
+- Added a dependency-free interoperability contract for AI-Evaluation-Engineering.
+- Added an evaluation-suite export endpoint for decision-level regression workflows.
+- Added canonical evaluation payload fingerprinting and contract-level tests.
+
 ## 0.3.0
 
 - Added a structured decision workspace with deterministic quantitative and risk analysis.
