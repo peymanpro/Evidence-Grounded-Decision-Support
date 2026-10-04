@@ -62,7 +62,10 @@ def validate_external_url(url: str) -> str:
         url = url.split("#", 1)[0]
         parsed = urlsplit(url)
 
-    hostname = parsed.hostname.rstrip(".").lower()
+    raw_hostname = parsed.hostname
+    if raw_hostname is None:
+        raise SourceFetchError("URL hostname is required.")
+    hostname = raw_hostname.rstrip(".").lower()
     if hostname in {"localhost", "localhost.localdomain"} or hostname.endswith(".localhost"):
         raise SourceFetchError("Local hostnames are not allowed.")
 
