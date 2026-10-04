@@ -29,6 +29,8 @@ from wealthbrain.modules.decisions.engine import (
 )
 from wealthbrain.modules.decisions.repository import DecisionRepository
 from wealthbrain.modules.evidence.service import assess_sufficiency
+from wealthbrain.modules.knowledge.contracts import HistoricalCaseSearchResult
+from wealthbrain.modules.knowledge.service import KnowledgeService
 
 
 class DecisionService:
@@ -129,6 +131,18 @@ class DecisionService:
         )
         await self._session.commit()
         return JournalEntryResponse.model_validate(record)
+
+    async def related_cases(
+        self,
+        decision_id: UUID,
+        limit: int = 5,
+    ) -> list[HistoricalCaseSearchResult]:
+        decision = await self._require(decision_id)
+        return await KnowledgeService(self._session).related_to_decision(
+            decision_type=decision.decision_type,
+            query=decision.decision,
+            limit=limit,
+        )
 
     async def report(self, decision_id: UUID) -> DecisionReport:
         decision = await self._require(decision_id)
