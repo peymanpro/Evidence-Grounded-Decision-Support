@@ -109,3 +109,45 @@ async def test_safety_policy_denies_external_action() -> None:
 
     assert result.allowed is False
     assert result.human_review_required is True
+
+
+async def test_safety_policy_blocks_recommendation_without_acknowledgement() -> None:
+    report = await StubDecisionService().report(uuid4())
+    result = SafetyPolicy().check(
+        report,
+        SafetyCheckRequest(
+            intent="recommendation",
+            acknowledgement=False,
+        ),
+    )
+
+    assert result.allowed is False
+    assert any("acknowledgement" in reason for reason in result.reasons)
+
+
+async def test_safety_policy_blocks_high_risk_recommendation() -> None:
+    report = await StubDecisionService().report(uuid4())
+    from wealthbrain.modules.decisions.contracts import RiskResponse
+
+    report.risks = [
+        RiskResponse(
+            id=uuid4(),
+            decision_id=report.decision.id,
+            title="Material risk",
+            probability=0.9,
+            impact=8.0,
+            risk_score=7.2,
+            mitigation="Review before acting.",
+            created_at=datetime.now(UTC),
+        )
+    ]
+    result = SafetyPolicy().check(
+        report,
+        SafetyCheckRequest(
+            intent="recommendation",
+            acknowledgement=True,
+        ),
+    )
+
+    assert result.allowed is False
+    assert any("High-risk" in reason for reason in result.reasons)
