@@ -182,3 +182,24 @@ class DecisionAuditEventRecord(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class KnowledgeCaseRecord(Base):
+    __tablename__ = "knowledge_cases"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    title: Mapped[str] = mapped_column(String(300))
+    summary: Mapped[str] = mapped_column(Text())
+    decision_type: Mapped[str] = mapped_column(String(50), index=True)
+    alternatives: Mapped[list[str]] = mapped_column(JSON(), default=list)
+    outcome: Mapped[str] = mapped_column(Text())
+    lessons: Mapped[list[str]] = mapped_column(JSON(), default=list)
+    source_url: Mapped[str | None] = mapped_column(String(2_000), nullable=True)
+    source_publisher: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    is_synthetic: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
