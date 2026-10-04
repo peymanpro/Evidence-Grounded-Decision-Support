@@ -203,3 +203,28 @@ class KnowledgeCaseRecord(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+
+class ResearchRunRecord(Base):
+    __tablename__ = "research_runs"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    decision_id: Mapped[UUID] = mapped_column(
+        ForeignKey("decisions.id", ondelete="CASCADE"), index=True
+    )
+    question: Mapped[str] = mapped_column(Text())
+    purpose: Mapped[str] = mapped_column(Text())
+    provider: Mapped[str] = mapped_column(String(120))
+    max_results: Mapped[int] = mapped_column()
+    domains: Mapped[list[str]] = mapped_column(JSON(), default=list)
+    sources: Mapped[list[dict[str, object]]] = mapped_column(JSON(), default=list)
+    fetch_errors: Mapped[list[str]] = mapped_column(JSON(), default=list)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    completed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
