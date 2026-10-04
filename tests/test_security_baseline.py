@@ -49,3 +49,23 @@ def test_production_rejects_missing_api_key(monkeypatch) -> None:
             raise AssertionError("Expected missing API key to be rejected.")
 
     asyncio.run(run())
+
+
+def test_production_rejects_wildcard_trusted_hosts() -> None:
+    from pydantic import ValidationError
+
+    import pytest
+
+    with pytest.raises(ValidationError):
+        __import__("wealthbrain.config.settings", fromlist=["Settings"]).Settings(
+            app_env="production",
+            trusted_hosts=["*"],
+        )
+
+
+def test_development_allows_wildcard_trusted_hosts() -> None:
+    from wealthbrain.config.settings import Settings
+
+    settings = Settings(app_env="development", trusted_hosts=["*"])
+
+    assert settings.trusted_hosts == ["*"]
