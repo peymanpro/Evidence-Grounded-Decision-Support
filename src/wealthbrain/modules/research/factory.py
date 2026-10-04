@@ -2,6 +2,7 @@ from wealthbrain.config.settings import Settings
 from wealthbrain.modules.research.providers import (
     HttpJsonSearchProvider,
     ResearchProvider,
+    SourceFetcher,
     StaticResearchProvider,
 )
 
@@ -18,4 +19,15 @@ def create_research_provider(settings: Settings) -> ResearchProvider:
         api_key=settings.research_api_key,
         timeout_seconds=settings.research_timeout_seconds,
         max_response_bytes=settings.research_max_response_bytes,
+    )
+
+
+from wealthbrain.modules.research.providers import HttpSourceFetcher
+
+
+def create_source_fetcher(settings: Settings) -> SourceFetcher:
+    return HttpSourceFetcher(
+        timeout_seconds=settings.research_timeout_seconds,
+        max_response_bytes=settings.research_max_response_bytes,
+        user_agent=settings.research_user_agent,
     )
