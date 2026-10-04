@@ -59,9 +59,8 @@ from wealthbrain.modules.safety.contracts import (
     SafetyCheckRequest,
     SafetyCheckResponse,
 )
-from wealthbrain.modules.safety.service import SafetyPolicy
 from wealthbrain.modules.knowledge.contracts import HistoricalCaseSearchResult
-from wealthbrain.modules.knowledge.service import KnowledgeService
+from wealthbrain.modules.safety.service import SafetyPolicy
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
 
@@ -298,12 +297,7 @@ async def get_related_cases(
     decision_id: UUID,
     service: Service,
 ) -> list[HistoricalCaseSearchResult]:
-    decision = await service.get(decision_id)
-    session = service._session
-    return await KnowledgeService(session).related_to_decision(
-        decision.decision_type,
-        decision.decision,
-    )
+    return await service.related_cases(decision_id)
 
 
 @router.post("/{decision_id}/safety-check", response_model=SafetyCheckResponse)
