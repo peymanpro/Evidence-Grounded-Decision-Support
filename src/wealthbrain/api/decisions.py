@@ -33,10 +33,13 @@ from wealthbrain.modules.decisions.interview import (
     next_questions,
 )
 from wealthbrain.modules.decisions.service import DecisionService
+from wealthbrain.modules.evaluation.artifact import EvaluationArtifact, build_evaluation_artifact
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 from wealthbrain.modules.evidence.contracts import EvidenceSufficiency
 from wealthbrain.modules.orchestration.service import DecisionAIService
+from wealthbrain.modules.safety.contracts import SafetyCheckRequest, SafetyCheckResponse
+from wealthbrain.modules.safety.service import SafetyPolicy
 from wealthbrain.modules.research.contracts import (
     ResearchExecutionRequest,
     ResearchQuestion,
@@ -221,3 +224,22 @@ async def get_ai_advisor(
         role=payload.role,
         max_tokens=payload.max_tokens,
     )
+
+
+@router.get("/{decision_id}/evaluation-artifact", response_model=EvaluationArtifact)
+async def get_evaluation_artifact(
+    decision_id: UUID, service: Service
+) -> EvaluationArtifact:
+    report = await service.report(decision_id)
+    quality = DecisionEvaluationService().evaluate(report)
+    return build_evaluation_artifact(report, quality)
+
+
+@router.post("/{decision_id}/safety-check", response_model=SafetyCheckResponse)
+async def safety_check(
+    decision_id: UUID,
+    payload: SafetyCheckRequest,
+    service: Service,
+) -> SafetyCheckResponse:
+    report = await service.report(decision_id)
+    return SafetyPolicy().check(report, payload)
