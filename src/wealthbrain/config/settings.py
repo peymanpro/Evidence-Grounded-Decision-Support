@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     ai_base_url: str = "https://api.openai.com/v1"
     ai_api_key: str | None = None
     ai_timeout_seconds: float = Field(default=30.0, gt=0, le=120)
+    default_research_provider: Literal["fake", "http"] = "fake"
+    research_search_url: str | None = None
+    research_api_key: str | None = None
+    research_timeout_seconds: float = Field(default=20.0, gt=0, le=120)
+    research_max_response_bytes: int = Field(default=1_000_000, ge=1_024, le=10_000_000)
+    research_max_results: int = Field(default=5, ge=1, le=20)
+    research_user_agent: str = Field(default="WealthBrainResearch/0.2", min_length=1, max_length=200)
     log_level: str = "INFO"
     cors_origins: list[str] = Field(default_factory=list)
 
