@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, HttpUrl, ValidationInfo, field_validator
 
+from wealthbrain.modules.evidence.contracts import EvidenceSufficiency
+
 
 class DecisionCreate(BaseModel):
     conversation_id: UUID | None = None
@@ -196,3 +198,13 @@ class DecisionReport(BaseModel):
     risk_analysis: RiskAnalysis
     critique: CritiqueResult
     synthesis: SynthesisResult
+    evidence_sufficiency: EvidenceSufficiency = Field(
+        default_factory=lambda: EvidenceSufficiency(
+            supporting_count=0,
+            challenging_count=0,
+            verified_supporting_count=0,
+            source_domain_count=0,
+            score=0.0,
+            sufficient=False,
+        )
+    )
