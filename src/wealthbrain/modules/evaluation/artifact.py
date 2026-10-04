@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from hashlib import sha256
+import json
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -27,7 +28,12 @@ def build_evaluation_artifact(
         "report": report.model_dump(mode="json"),
         "quality": quality.model_dump(mode="json"),
     }
-    serialized = repr(stable_payload).encode("utf-8")
+    serialized = json.dumps(
+        stable_payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
     return EvaluationArtifact(
         decision_id=report.decision.id,
         generated_at=datetime.now(UTC),
