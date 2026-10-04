@@ -60,6 +60,8 @@ from wealthbrain.modules.safety.contracts import (
     SafetyCheckResponse,
 )
 from wealthbrain.modules.safety.service import SafetyPolicy
+from wealthbrain.modules.knowledge.contracts import HistoricalCaseSearchResult
+from wealthbrain.modules.knowledge.service import KnowledgeService
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
 
@@ -288,6 +290,19 @@ async def run_research(
         fetcher=fetcher,
         max_results=payload.max_results,
         domains=payload.domains,
+    )
+
+
+@router.get("/{decision_id}/related-cases")
+async def get_related_cases(
+    decision_id: UUID,
+    service: Service,
+) -> list[HistoricalCaseSearchResult]:
+    decision = await service.get(decision_id)
+    session = service._session
+    return await KnowledgeService(session).related_to_decision(
+        decision.decision_type,
+        decision.decision,
     )
 
 
