@@ -40,11 +40,6 @@ async def create_case(
     return await service.create(payload)
 
 
-@router.get("/{case_id}", response_model=HistoricalCaseResponse)
-async def get_case(case_id: UUID, service: Service) -> HistoricalCaseResponse:
-    return await service.get(case_id)
-
-
 @router.post("/search", response_model=list[HistoricalCaseSearchResult])
 async def search_cases(
     payload: HistoricalCaseSearchRequest, service: Service
@@ -54,3 +49,10 @@ async def search_cases(
         payload.decision_type,
         payload.limit,
     )
+
+
+@router.get("/{case_id}", response_model=HistoricalCaseResponse)
+async def get_case(
+    case_id: UUID, service: Service
+) -> HistoricalCaseResponse:
+    return await service.get(case_id)
