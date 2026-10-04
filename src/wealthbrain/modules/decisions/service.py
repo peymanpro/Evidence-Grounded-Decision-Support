@@ -28,6 +28,7 @@ from wealthbrain.modules.decisions.engine import (
     synthesize,
 )
 from wealthbrain.modules.decisions.repository import DecisionRepository
+from wealthbrain.modules.evidence.service import assess_sufficiency
 
 
 class DecisionService:
@@ -151,6 +152,7 @@ class DecisionService:
             alternative_models, criterion_models, scores
         )
         risk_analysis = calculate_risk(risk_models)
+        evidence_sufficiency = assess_sufficiency(evidence_models)
         critique = critique_decision(evidence_models, risk_models, quantitative)
         synthesis = synthesize(
             decision.id, quantitative, evidence_models, risk_analysis, critique
@@ -167,6 +169,7 @@ class DecisionService:
             risk_analysis=risk_analysis,
             critique=critique,
             synthesis=synthesis,
+            evidence_sufficiency=evidence_sufficiency,
         )
 
     async def audit(self, decision_id: UUID) -> list[AuditEventResponse]:
