@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from wealthbrain.modules.decisions.contracts import DecisionReport
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
