@@ -47,8 +47,10 @@ from wealthbrain.modules.knowledge.contracts import HistoricalCaseSearchResult
 from wealthbrain.modules.orchestration.service import DecisionAIService
 from wealthbrain.modules.research.contracts import (
     ResearchExecutionRequest,
+    ResearchQuestion,
     ResearchRun,
 )
+from wealthbrain.modules.research.service import ResearchService
 from wealthbrain.modules.safety.contracts import (
     SafetyCheckRequest,
     SafetyCheckResponse,
