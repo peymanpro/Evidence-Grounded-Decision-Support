@@ -85,9 +85,27 @@ class DecisionRepository:
         )
         return list(result)
 
-    async def add_evidence(self, decision_id: UUID, payload: EvidenceCreate) -> EvidenceRecord:
-        values = payload.model_dump()
+    async def add_evidence(
+        self,
+        decision_id: UUID,
+        payload: EvidenceCreate,
+    ) -> EvidenceRecord:
+        values = payload.model_dump(exclude={"provenance"})
         values["source_url"] = str(payload.source_url)
+        values.update(
+            {
+                "provenance_publisher": payload.provenance.publisher,
+                "provenance_retrieved_at": payload.provenance.retrieved_at,
+                "provenance_status_code": payload.provenance.status_code,
+                "provenance_content_type": payload.provenance.content_type,
+                "provenance_content_sha256": payload.provenance.content_sha256,
+                "provenance_content_length_bytes": (
+                    payload.provenance.content_length_bytes
+                ),
+                "provenance_excerpt": payload.provenance.excerpt,
+                "provenance_locator": payload.provenance.locator,
+            }
+        )
         record = EvidenceRecord(decision_id=decision_id, **values)
         self.session.add(record)
         await self.session.flush()
