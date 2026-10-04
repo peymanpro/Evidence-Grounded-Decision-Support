@@ -40,6 +40,7 @@ from wealthbrain.modules.evaluation.artifact import (
     EvaluationArtifact,
     build_evaluation_artifact,
 )
+from wealthbrain.modules.evaluation.interop import to_evaluation_suite_payload
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 from wealthbrain.modules.evidence.contracts import EvidenceSufficiency
@@ -210,6 +211,17 @@ async def get_quality_report(
 ) -> DecisionQualityReport:
     report = await service.report(decision_id)
     return DecisionEvaluationService().evaluate(report)
+
+
+@router.get("/{decision_id}/evaluation-suite")
+async def get_evaluation_suite(
+    decision_id: UUID,
+    service: Service,
+) -> dict[str, object]:
+    report = await service.report(decision_id)
+    quality = DecisionEvaluationService().evaluate(report)
+    artifact = build_evaluation_artifact(report, quality)
+    return to_evaluation_suite_payload(artifact)
 
 
 @router.get("/{decision_id}/evaluation-artifact", response_model=EvaluationArtifact)
