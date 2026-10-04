@@ -1,10 +1,9 @@
 from uuid import UUID
 
-from wealthbrain.config.settings import get_settings
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from wealthbrain.config.settings import get_settings
 from wealthbrain.infrastructure.models import DecisionRecord
 from wealthbrain.modules.decisions.contracts import (
     AlternativeCreate,
