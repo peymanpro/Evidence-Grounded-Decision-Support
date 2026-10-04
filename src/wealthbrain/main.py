@@ -11,6 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import JSONResponse, Response
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from wealthbrain.api.conversations import router as conversations_router
 from wealthbrain.api.decisions import router as decisions_router
@@ -28,6 +29,18 @@ rate_limiter = RateLimiter(
     limit=settings.rate_limit_requests,
     window_seconds=settings.rate_limit_window_seconds,
 )
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Permissions-Policy"] = "interest-cohort=()"
+        return response
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -78,8 +91,13 @@ app = FastAPI(
     description="Decision intelligence for structured, evidence-aware decision workflows.",
     lifespan=lifespan,
 )
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(RequestContextMiddleware)
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=settings.trusted_hosts,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
