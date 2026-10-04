@@ -1,5 +1,7 @@
 from uuid import UUID
 
+from wealthbrain.config.settings import get_settings
+
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,6 +33,17 @@ from wealthbrain.modules.decisions.repository import DecisionRepository
 from wealthbrain.modules.evidence.service import assess_sufficiency
 from wealthbrain.modules.knowledge.contracts import HistoricalCaseSearchResult
 from wealthbrain.modules.knowledge.service import KnowledgeService
+from wealthbrain.modules.research.contracts import (
+    ResearchExecutionRequest,
+    ResearchQuestion,
+    ResearchRun,
+)
+from wealthbrain.modules.research.factory import (
+    create_research_provider,
+    create_source_fetcher,
+)
+from wealthbrain.modules.research.repository import ResearchRunRepository
+from wealthbrain.modules.research.service import ResearchService
 
 
 class DecisionService:
@@ -131,6 +144,45 @@ class DecisionService:
         )
         await self._session.commit()
         return JournalEntryResponse.model_validate(record)
+
+    async def run_research(
+        self,
+        decision_id: UUID,
+        payload: ResearchExecutionRequest,
+    ) -> ResearchRun:
+        await self._require(decision_id)
+        settings = get_settings()
+        question = ResearchQuestion(
+            question=payload.question,
+            purpose=payload.purpose,
+        )
+        provider = create_research_provider(settings)
+        fetcher = create_source_fetcher(settings)
+        run = await ResearchService().run(
+            question=question,
+            provider=provider,
+            fetcher=fetcher,
+            max_results=min(payload.max_results, settings.research_max_results),
+            domains=payload.domains,
+        )
+        record = await ResearchRunRepository(self._session).create(
+            decision_id=decision_id,
+            run=run,
+            max_results=payload.max_results,
+            domains=payload.domains,
+        )
+        run.id = str(record.id)
+        await self._repo.add_audit_event(
+            decision_id,
+            "research_run_completed",
+            {
+                "research_run_id": str(record.id),
+                "source_count": len(run.sources),
+                "fetch_error_count": len(run.fetch_errors),
+            },
+        )
+        await self._session.commit()
+        return run
 
     async def related_cases(
         self,
