@@ -8,6 +8,7 @@ from wealthbrain.modules.decisions.contracts import (
     DecisionResponse,
     RiskResponse,
 )
+from wealthbrain.modules.decisions.engine import calculate_risk
 from wealthbrain.modules.evidence.service import assess_sufficiency
 from wealthbrain.modules.safety.contracts import SafetyCheckRequest
 from wealthbrain.modules.safety.service import SafetyPolicy
@@ -77,9 +78,6 @@ async def test_model_advisor_service_uses_provider_boundary() -> None:
 
 async def test_safety_policy_blocks_recommendation_without_sufficient_evidence() -> None:
     report = await StubDecisionService().report(uuid4())
-    from wealthbrain.modules.decisions.engine import calculate_risk
-
-    report.risk_analysis = calculate_risk(report.risks)
     result = SafetyPolicy().check(
         report,
         SafetyCheckRequest(
@@ -143,6 +141,7 @@ async def test_safety_policy_blocks_high_risk_recommendation() -> None:
             created_at=datetime.now(UTC),
         )
     ]
+    report.risk_analysis = calculate_risk(report.risks)
     result = SafetyPolicy().check(
         report,
         SafetyCheckRequest(
