@@ -6,7 +6,7 @@ It is not a trading bot, autonomous money manager, generic chatbot, or replaceme
 
 ## Current status
 
-**Version:** 0.3.0  
+**Version:** 0.3.1  
 **Repository:** Private  
 **Architecture:** Modular monolith  
 **Primary stack:** Python 3.12 · FastAPI · SQLAlchemy async · PostgreSQL · Alembic · Docker
@@ -268,6 +268,7 @@ GET  /decisions/{id}/advisors
 POST /decisions/{id}/ai-advisor
 GET  /decisions/{id}/quality
 GET  /decisions/{id}/evaluation-artifact
+GET  /decisions/{id}/evaluation-suite
 GET  /decisions/{id}/evidence-sufficiency
 GET  /decisions/{id}/ai-critique
 GET  /decisions/{id}/research-plan
