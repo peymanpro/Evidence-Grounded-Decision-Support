@@ -1,6 +1,8 @@
 import asyncio
 
+import pytest
 from fastapi import HTTPException
+from pydantic import ValidationError
 
 from wealthbrain.api.security import require_api_key
 from wealthbrain.config.settings import Settings
@@ -52,10 +54,6 @@ def test_production_rejects_missing_api_key(monkeypatch) -> None:
 
 
 def test_production_rejects_wildcard_trusted_hosts() -> None:
-    from pydantic import ValidationError
-
-    import pytest
-
     with pytest.raises(ValidationError):
         __import__("wealthbrain.config.settings", fromlist=["Settings"]).Settings(
             app_env="production",
