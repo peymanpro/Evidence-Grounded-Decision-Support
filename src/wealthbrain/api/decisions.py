@@ -26,8 +26,6 @@ from wealthbrain.modules.decisions.contracts import (
     RiskResponse,
     ScoreCreate,
 )
-from wealthbrain.modules.evidence.contracts import EvidenceSufficiency
-
 from wealthbrain.modules.decisions.interview import (
     InterviewQuestion,
     missing_questions,
@@ -36,6 +34,7 @@ from wealthbrain.modules.decisions.interview import (
 from wealthbrain.modules.decisions.service import DecisionService
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
+from wealthbrain.modules.evidence.contracts import EvidenceSufficiency
 from wealthbrain.modules.orchestration.service import DecisionAIService
 from wealthbrain.modules.research.contracts import (
     ResearchExecutionRequest,
