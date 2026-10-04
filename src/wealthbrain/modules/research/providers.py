@@ -140,13 +140,16 @@ class HttpJsonSearchProvider(ResearchProvider):
                 timeout=self._timeout,
                 transport=self._transport,
             ) as client:
-                response = await client.post(
+                async with client.stream(
+                    "POST",
                     self._endpoint,
                     headers=headers,
                     json=payload,
-                )
-                response.raise_for_status()
-                body = await _bounded_response_bytes(response, self._max_response_bytes)
+                ) as response:
+                    response.raise_for_status()
+                    body = await _bounded_response_bytes(
+                        response, self._max_response_bytes
+                    )
         except httpx.TimeoutException as exc:
             raise ResearchProviderTimeoutError("Research search timed out.") from exc
         except httpx.HTTPError as exc:
@@ -196,16 +199,33 @@ class HttpSourceFetcher(SourceFetcher):
                 headers={"User-Agent": self._user_agent},
                 transport=self._transport,
             ) as client:
-                response = await client.get(safe_url)
-                if 300 <= response.status_code < 400:
-                    location = response.headers.get("location")
-                    raise SourceFetchError(
-                        f"Redirect received but not followed automatically: {location or 'unknown'}"
+                async with client.stream("GET", safe_url) as response:
+                    if 300 <= response.status_code < 400:
+                        location = response.headers.get("location")
+                        raise SourceFetchError(
+                            "Redirect received but not followed automatically: "
+                            f"{location or 'unknown'}"
+                        )
+                    response.raise_for_status()
+                    content_type = (
+                        response.headers.get(
+                            "content-type", "application/octet-stream"
+                        )
+                        .split(";", 1)[0]
+                        .strip()
+                        .lower()
                     )
-                response.raise_for_status()
-                content = await _bounded_response_bytes(
-                    response, self._max_response_bytes
-                )
+                    if content_type not in {
+                        "text/html",
+                        "text/plain",
+                        "application/json",
+                    }:
+                        raise SourceFetchError(
+                            f"Unsupported source content type: {content_type}"
+                        )
+                    content = await _bounded_response_bytes(
+                        response, self._max_response_bytes
+                    )
         except SourceFetchError:
             raise
         except httpx.TimeoutException as exc:
@@ -214,15 +234,6 @@ class HttpSourceFetcher(SourceFetcher):
             raise SourceFetchError(str(exc)) from exc
         except httpx.HTTPError as exc:
             raise SourceFetchError("Source fetch failed.") from exc
-
-        content_type = (
-            response.headers.get("content-type", "application/octet-stream")
-            .split(";", 1)[0]
-            .strip()
-            .lower()
-        )
-        if content_type not in {"text/html", "text/plain", "application/json"}:
-            raise SourceFetchError(f"Unsupported source content type: {content_type}")
 
         return SourceDocument(
             url=safe_url,
