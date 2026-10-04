@@ -6,6 +6,7 @@ from wealthbrain.modules.ai.fake import FakeAIProvider
 from wealthbrain.modules.decisions.contracts import (
     DecisionReport,
     DecisionResponse,
+    RiskResponse,
 )
 from wealthbrain.modules.evidence.service import assess_sufficiency
 from wealthbrain.modules.safety.contracts import SafetyCheckRequest
@@ -127,8 +128,6 @@ async def test_safety_policy_blocks_recommendation_without_acknowledgement() -> 
 
 async def test_safety_policy_blocks_high_risk_recommendation() -> None:
     report = await StubDecisionService().report(uuid4())
-    from wealthbrain.modules.decisions.contracts import RiskResponse
-
     report.risks = [
         RiskResponse(
             id=uuid4(),
