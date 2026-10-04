@@ -1,6 +1,6 @@
+import json
 from datetime import UTC, datetime
 from hashlib import sha256
-import json
 from uuid import UUID
 
 from pydantic import BaseModel
