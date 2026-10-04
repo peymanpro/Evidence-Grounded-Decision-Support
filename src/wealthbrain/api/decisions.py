@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from wealthbrain.config.settings import get_settings
 from wealthbrain.infrastructure.database import session_dependency
 from wealthbrain.modules.advisors.contracts import AdvisorPanel
 from wealthbrain.modules.advisors.service import AdvisorService
@@ -34,7 +35,12 @@ from wealthbrain.modules.decisions.service import DecisionService
 from wealthbrain.modules.evaluation.contracts import DecisionQualityReport
 from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 from wealthbrain.modules.orchestration.service import DecisionAIService
-from wealthbrain.modules.research.contracts import ResearchQuestion
+from wealthbrain.modules.research.contracts import (
+    ResearchExecutionRequest,
+    ResearchQuestion,
+    ResearchRun,
+)
+from wealthbrain.modules.research.factory import create_research_provider, create_source_fetcher
 from wealthbrain.modules.research.service import ResearchService
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
@@ -169,3 +175,23 @@ async def get_next_question(
     report = await service.report(decision_id)
     questions = next_questions(report)
     return questions[0] if questions else None
+
+
+@router.post("/{decision_id}/research", response_model=ResearchRun)
+async def run_research(
+    decision_id: UUID,
+    payload: ResearchExecutionRequest,
+    service: Service,
+) -> ResearchRun:
+    await service.get(decision_id)
+    settings = get_settings()
+    question = ResearchQuestion(question=payload.question, purpose=payload.purpose)
+    provider = create_research_provider(settings)
+    fetcher = create_source_fetcher(settings)
+    return await ResearchService().run(
+        question=question,
+        provider=provider,
+        fetcher=fetcher,
+        max_results=payload.max_results,
+        domains=payload.domains,
+    )
