@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from wealthbrain.config.settings import get_settings
 from wealthbrain.infrastructure.database import session_dependency
-from wealthbrain.modules.advisors.contracts import AdvisorPanel
+from wealthbrain.modules.advisors.contracts import AdvisorPanel, AdvisorRequest, AdvisorResponse
+from wealthbrain.modules.advisors.ai_service import ModelAdvisorService
 from wealthbrain.modules.advisors.service import AdvisorService
 from wealthbrain.modules.decisions.contracts import (
     AlternativeCreate,
@@ -206,4 +207,17 @@ async def run_research(
         fetcher=fetcher,
         max_results=payload.max_results,
         domains=payload.domains,
+    )
+
+
+@router.post("/{decision_id}/ai-advisor", response_model=AdvisorResponse)
+async def get_ai_advisor(
+    decision_id: UUID,
+    payload: AdvisorRequest,
+    service: Service,
+) -> AdvisorResponse:
+    return await ModelAdvisorService(service).review(
+        decision_id=decision_id,
+        role=payload.role,
+        max_tokens=payload.max_tokens,
     )
