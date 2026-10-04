@@ -26,6 +26,8 @@ from wealthbrain.modules.decisions.contracts import (
     RiskResponse,
     ScoreCreate,
 )
+from wealthbrain.modules.evidence.contracts import EvidenceSufficiency
+
 from wealthbrain.modules.decisions.interview import (
     InterviewQuestion,
     missing_questions,
@@ -118,6 +120,14 @@ async def add_journal_entry(
 @router.get("/{decision_id}/audit", response_model=list[AuditEventResponse])
 async def get_audit(decision_id: UUID, service: Service) -> list[AuditEventResponse]:
     return await service.audit(decision_id)
+
+
+@router.get("/{decision_id}/evidence-sufficiency")
+async def get_evidence_sufficiency(
+    decision_id: UUID, service: Service
+) -> EvidenceSufficiency:
+    report = await service.report(decision_id)
+    return report.evidence_sufficiency
 
 
 @router.get("/{decision_id}/report", response_model=DecisionReport)
