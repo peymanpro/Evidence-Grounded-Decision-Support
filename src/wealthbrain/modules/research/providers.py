@@ -83,7 +83,10 @@ def validate_external_url(url: str) -> str:
 
     if literal_ip is None:
         try:
-            resolved = socket.getaddrinfo(hostname, parsed.port or (443 if parsed.scheme == "https" else 80))
+            resolved = socket.getaddrinfo(
+                hostname,
+                parsed.port or (443 if parsed.scheme == "https" else 80),
+            )
         except OSError as exc:
             raise SourceFetchError("Could not resolve source hostname.") from exc
         addresses = {item[4][0] for item in resolved}
