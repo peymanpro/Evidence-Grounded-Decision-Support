@@ -152,6 +152,8 @@ class HttpJsonSearchProvider(ResearchProvider):
                     )
         except httpx.TimeoutException as exc:
             raise ResearchProviderTimeoutError("Research search timed out.") from exc
+        except ResponseTooLargeError as exc:
+            raise ResearchProviderError(str(exc)) from exc
         except httpx.HTTPError as exc:
             raise ResearchProviderError("Research search request failed.") from exc
 
@@ -283,7 +285,11 @@ async def _bounded_response_bytes(
         except ValueError:
             pass
 
-    data = response.content
-    if len(data) > max_bytes:
-        raise ResponseTooLargeError("Response exceeds configured byte limit.")
-    return data
+    chunks: list[bytes] = []
+    total = 0
+    async for chunk in response.aiter_bytes():
+        total += len(chunk)
+        if total > max_bytes:
+            raise ResponseTooLargeError("Response exceeds configured byte limit.")
+        chunks.append(chunk)
+    return b"".join(chunks)
