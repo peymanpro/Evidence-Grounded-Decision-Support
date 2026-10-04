@@ -40,7 +40,10 @@ from wealthbrain.modules.research.contracts import (
     ResearchQuestion,
     ResearchRun,
 )
-from wealthbrain.modules.research.factory import create_research_provider, create_source_fetcher
+from wealthbrain.modules.research.factory import (
+    create_research_provider,
+    create_source_fetcher,
+)
 from wealthbrain.modules.research.service import ResearchService
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
