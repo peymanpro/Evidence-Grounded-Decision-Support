@@ -1,14 +1,13 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from wealthbrain.modules.ai.fake import FakeAIProvider
 from wealthbrain.modules.advisors.ai_service import ModelAdvisorService
+from wealthbrain.modules.ai.fake import FakeAIProvider
 from wealthbrain.modules.decisions.contracts import (
     DecisionReport,
     DecisionResponse,
 )
 from wealthbrain.modules.evidence.service import assess_sufficiency
-from wealthbrain.modules.evaluation.service import DecisionEvaluationService
 from wealthbrain.modules.safety.contracts import SafetyCheckRequest
 from wealthbrain.modules.safety.service import SafetyPolicy
 
