@@ -7,8 +7,6 @@ from wealthbrain.modules.ai.contracts import CompletionRequest
 from wealthbrain.modules.ai.factory import create_ai_provider
 from wealthbrain.modules.ai.provider import AIProvider
 from wealthbrain.modules.decisions.service import DecisionService
-
-
 ROLE_INSTRUCTIONS: Final[dict[AdvisorRole, str]] = {
     "evidence": (
         "Audit evidence provenance, source quality, contradictions, and missing "
