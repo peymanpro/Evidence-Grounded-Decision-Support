@@ -110,7 +110,36 @@ class EvidenceRecord(Base):
     claim: Mapped[str] = mapped_column(Text())
     supports: Mapped[bool] = mapped_column(default=True)
     confidence: Mapped[float] = mapped_column(Float())
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    quality: Mapped[str] = mapped_column(
+        String(30), default="unverified"
+    )
+    provenance_publisher: Mapped[str | None] = mapped_column(
+        String(300), nullable=True
+    )
+    provenance_retrieved_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    provenance_status_code: Mapped[int | None] = mapped_column(
+        nullable=True
+    )
+    provenance_content_type: Mapped[str | None] = mapped_column(
+        String(120), nullable=True
+    )
+    provenance_content_sha256: Mapped[str | None] = mapped_column(
+        String(64), nullable=True, index=True
+    )
+    provenance_content_length_bytes: Mapped[int | None] = mapped_column(
+        nullable=True
+    )
+    provenance_excerpt: Mapped[str | None] = mapped_column(
+        Text(), nullable=True
+    )
+    provenance_locator: Mapped[str | None] = mapped_column(
+        String(500), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 class RiskRecord(Base):
