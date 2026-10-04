@@ -172,6 +172,8 @@ Current runtime protections include:
 - request duration logging;
 - liveness/readiness separation;
 - production API-key guard;
+- Trusted Host validation;
+- security response headers;
 - fixed-window single-process rate limiting;
 - outbound source URL validation;
 - bounded network responses.
@@ -370,7 +372,7 @@ RESEARCH_API_KEY=
 RESEARCH_TIMEOUT_SECONDS=20
 RESEARCH_MAX_RESPONSE_BYTES=1000000
 RESEARCH_MAX_RESULTS=5
-RESEARCH_USER_AGENT=WealthBrainResearch/0.2
+RESEARCH_USER_AGENT=WealthBrainResearch/0.3.1
 
 API_KEY=
 RATE_LIMIT_REQUESTS=60
@@ -378,6 +380,7 @@ RATE_LIMIT_WINDOW_SECONDS=60
 
 LOG_LEVEL=INFO
 CORS_ORIGINS=http://localhost:3000
+TRUSTED_HOSTS=*
 ```
 
 Production deployments must keep credentials outside source control and must configure the API key explicitly.
@@ -434,9 +437,9 @@ pytest
 Docker build
 ```
 
-The verified code checkpoint immediately before this documentation update is:
+The latest verified code checkpoint is:
 
-`eef42bbfc99a30a10417597a38c05492836a6b5a`
+`a09f93dece3242094e526256700841061ca20041` (GitHub Actions Run 252)
 
 Its CI run completed successfully with:
 
@@ -445,7 +448,7 @@ Its CI run completed successfully with:
 - pytest ✅
 - Docker build ✅
 
-The release metadata commits following that checkpoint are documentation/version alignment work and will be re-verified by CI.
+Subsequent documentation-only changes do not change the runtime behavior described above.
 
 ## Open-source direction
 
