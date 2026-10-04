@@ -23,7 +23,7 @@ def to_evaluation_suite_payload(
     report = artifact.report
     quality = artifact.quality
 
-    cases = [
+    cases: list[dict[str, Any]] = [
         {
             "id": f"{report.decision.id}:quality",
             "input": {
@@ -102,8 +102,14 @@ def evaluation_case_payload(
     signal: str,
 ) -> dict[str, Any]:
     suite = to_evaluation_suite_payload(artifact)
-    for case in suite["cases"]:
-        if case["input"]["signal"] == signal:
+    cases = suite["cases"]
+    if not isinstance(cases, list):
+        raise TypeError("Evaluation suite cases must be a list.")
+    for case in cases:
+        if not isinstance(case, dict):
+            continue
+        case_input = case.get("input")
+        if isinstance(case_input, dict) and case_input.get("signal") == signal:
             return case
     raise ValueError(f"Unknown WealthBrain evaluation signal: {signal}")
 
