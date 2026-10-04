@@ -1,21 +1,211 @@
 # WealthBrain
 
-**WealthBrain is a private decision-intelligence application for reasoning about wealth, capital-allocation, and other high-consequence decisions.**
+**WealthBrain is a private decision-intelligence application for structured, evidence-aware reasoning about wealth, capital allocation, career, business, and other high-consequence decisions.**
 
-It is being developed as a long-lived personal system rather than as a public demo or a generic chatbot.
+It is not a trading bot, autonomous money manager, generic chatbot, or replacement for professional financial, legal, tax, or investment advice.
 
-The intended product direction is:
+## Current status
+
+**Version:** 0.3.0  
+**Repository:** Private  
+**Architecture:** Modular monolith  
+**Primary stack:** Python 3.12 · FastAPI · SQLAlchemy async · PostgreSQL · Alembic · Docker
+
+The current release contains a working decision-intelligence core with deterministic analysis, adaptive interviewing, research/source retrieval boundaries, evidence provenance, historical cases, specialist perspectives, model-assisted critique, evaluation artifacts, executable safety checks, audit events, observability, and a basic production security boundary.
+
+The project is still evolving. It should not be described as a validated financial-advisory product or as production-complete autonomous AI.
+
+## What is implemented
+
+### Decision workflow
+
+A decision can be represented with:
+
+- decision context and type;
+- alternatives;
+- weighted criteria;
+- scores;
+- evidence and provenance;
+- risks and mitigations;
+- journal entries;
+- deterministic analysis;
+- critique;
+- structured synthesis;
+- audit events.
+
+The quantitative core is deterministic and reproducible. Model output is kept outside the core numerical calculations.
+
+### Adaptive interview
+
+The system inspects the current decision state and identifies missing information.
+
+Current question priorities include:
+
+- capital exposure for financially relevant decisions;
+- time horizon;
+- missing alternatives;
+- missing criteria;
+- incomplete score matrices;
+- missing evidence;
+- missing risks.
+
+The API can return either the full question set or the single next question.
+
+### Research engine
+
+Research is provider-neutral.
+
+Current boundaries include:
+
+- typed research questions and execution requests;
+- configurable HTTP search-provider adapter;
+- deterministic static provider for tests;
+- bounded source fetching;
+- HTTP/HTTPS-only source URLs;
+- rejection of credential-bearing URLs;
+- rejection of local/private/reserved address targets;
+- redirects disabled by default;
+- bounded response bodies;
+- supported text/HTML/JSON content types;
+- source normalization;
+- SHA-256 content hashes;
+- retrieval timestamps and HTTP metadata;
+- persisted research-run metadata.
+
+The research layer deliberately does **not** invent claims. Claim extraction and evidence linking remain separate responsibilities.
+
+### Evidence system
+
+Evidence now carries both a claim and its provenance:
+
+- source URL;
+- publisher;
+- retrieval time;
+- status/content metadata;
+- content hash;
+- content length;
+- optional excerpt/locator;
+- quality state.
+
+Quality states are:
+
+`unverified`, `partially_verified`, `verified`, `challenged`.
+
+A deterministic evidence-sufficiency check reports:
+
+- supporting and challenging evidence counts;
+- verified-supporting count;
+- source-domain diversity;
+- sufficiency score;
+- blocking issues;
+- warnings.
+
+### Historical knowledge
+
+The knowledge module stores structured historical decision cases with:
+
+- title and summary;
+- decision type;
+- alternatives;
+- outcome;
+- lessons;
+- optional source metadata;
+- synthetic-data flag.
+
+Cases can be searched deterministically and related to an existing decision by decision type and text.
+
+### Specialist advisors
+
+The project contains two advisor layers.
+
+**Deterministic panel:** evidence, quantitative, risk, and challenge perspectives.
+
+**Model-backed advisor:** the same bounded roles can be executed through the provider abstraction, with human review remaining mandatory.
+
+### AI provider boundary
+
+The core depends on a small provider contract:
 
 ```text
-Decision
+CompletionRequest
+       ↓
+    AIProvider
+       ↓
+CompletionResponse
+```
+
+Current implementations include:
+
+- `FakeAIProvider`;
+- `FailingAIProvider`;
+- OpenAI-compatible HTTP adapter;
+- provider-specific error and timeout boundaries.
+
+No provider credential is stored in the repository.
+
+### Evaluation
+
+The evaluation layer provides:
+
+- decision-quality checks;
+- blocking issues;
+- structured evaluation artifacts;
+- canonical evaluation-input fingerprints.
+
+The fingerprint lets a later regression system refer to the same decision/evaluation input without relying on timestamps.
+
+### Safety
+
+Safety is implemented as executable policy, not only documentation.
+
+Current policy:
+
+- analysis is allowed as decision support, with human review retained;
+- recommendation output is blocked when acknowledgement is absent, evidence is insufficient, or high-risk items remain;
+- consequential external action is always denied by this application boundary.
+
+### Observability and security baseline
+
+Current runtime protections include:
+
+- request IDs;
+- request duration logging;
+- liveness/readiness separation;
+- production API-key guard;
+- fixed-window single-process rate limiting;
+- outbound source URL validation;
+- bounded network responses.
+
+The rate limiter is intentionally documented as single-process. Distributed rate limiting, full identity management, and deeper production hardening remain future work.
+
+## Architecture
+
+```text
+                         WealthBrain API
+                              │
+          ┌───────────────────┼───────────────────┐
+          │                   │                   │
+   Conversations          Decisions          Knowledge
+          │                   │
+          └────────────┬──────┘
+                       ↓
+                Application Services
+                       ↓
+             Deterministic / Domain Logic
+                       ↓
+                    Repositories
+                       ↓
+                SQLAlchemy + PostgreSQL
+
+Decision workflow
    ↓
-Context
+Adaptive Interview
    ↓
-Conversation
+Research + Source Retrieval
    ↓
-Research & Evidence
+Evidence + Provenance
    ↓
-Quantitative / Risk Analysis
+Quantitative + Risk Analysis
    ↓
 Specialist Perspectives
    ↓
@@ -23,164 +213,41 @@ Critique
    ↓
 Synthesis
    ↓
-Decision Journal
-   ↓
-Evaluation & Improvement
-```
-
-The repository is intentionally being built incrementally. Version `0.2.0` extends the original foundation into a structured decision workspace with deterministic analysis, adaptive questioning, auditability, and a real model-provider boundary. It is still not a completed wealth-advisory system.
-
-## Why WealthBrain Exists
-
-Many financial and strategic decisions cannot be reduced to a single prediction or a single model output.
-
-A useful decision system needs to preserve the decision context, identify missing information, separate evidence from assumptions, compare alternatives, reason quantitatively where appropriate, surface risks and contradictions, and retain an auditable history of how a conclusion was reached.
-
-WealthBrain is intended to become that kind of system.
-
-Its long-term focus is therefore **decision intelligence**, not:
-
-- a trading bot;
-- an autonomous money manager;
-- a generic conversational assistant;
-- a collection of unrelated AI agents;
-- a replacement for professional financial, legal, tax, or investment advice.
-
-## Current Status
-
-**Version:** `0.2.0`  
-**Repository:** Private  
-**Current phase:** Decision Intelligence Core — post-Phase 01 foundation  
-**Implementation state:** Foundation plus the first decision-intelligence core are implemented; later research, knowledge, specialist, and production phases remain on the roadmap.
-
-Current implementation includes:
-
-- FastAPI application structure;
-- PostgreSQL persistence with SQLAlchemy 2.x and Alembic;
-- conversation and message persistence;
-- structured decisions, alternatives, weighted criteria, scores, evidence, risks, and journal entries;
-- deterministic quantitative scoring and weight sensitivity analysis;
-- deterministic critique and structured synthesis with mandatory human review;
-- state-driven adaptive interview questions;
-- typed research-planning contracts;
-- deterministic specialist/advisor perspectives;
-- decision-quality checks;
-- a provider-neutral AI contract plus deterministic fake provider;
-- an OpenAI-compatible HTTP provider adapter;
-- decision audit events containing identifiers and operation metadata rather than private decision text;
-- request IDs and timing logs;
-- Docker and Docker Compose support;
-- CI checks for Ruff, mypy, pytest, and Docker build.
-
-The research layer currently defines planning and evidence boundaries but does not yet perform autonomous web search/fetching. Broader knowledge management, production authentication, advanced evaluation, safety enforcement, and production hardening remain incomplete.
-
-## Core Product Idea
-
-The system is designed around a decision rather than around a user profile.
-
-A decision is treated as a bounded object with its own:
-
-- question;
-- type;
-- relevant context;
-- financial exposure where applicable;
-- time horizon;
-- evidence;
-- assumptions;
-- alternatives;
-- analyses;
-- risks;
-- critiques;
-- final synthesis;
-- subsequent outcome and lessons.
-
-This is important because the same person can make many unrelated decisions under very different constraints. The system should reason from the context of the decision instead of silently turning every conversation into a permanent user profile.
-
-## Architecture Direction
-
-The project uses a modular architecture so that domain reasoning can evolve independently from infrastructure and external AI providers.
-
-Current foundation:
-
-```text
-                 WealthBrain API
-                       │
-             ┌─────────┴─────────┐
-             │                   │
-      Conversations        Decisions
-             │                │
-             └──────┬─────────┘
-                    ↓
-             Application Services
-                    ↓
-          Domain / Decision Engines
-                    ↓
-              Repositories
-                    ↓
-             SQLAlchemy ORM
-                    ↓
-               PostgreSQL
+Evaluation / Safety / Audit
 
 AI boundary
- Application → AIProvider
-                 ├─ Fake Provider
-                 └─ OpenAI-compatible HTTP Adapter
-
-Supporting boundaries
-  Interview → Research Plan → Evidence
-  Decision  → Audit Trail
-  Decision  → Quality / Advisor Views
+   Application
+       ↓
+    AIProvider
+       ├── Fake provider
+       └── OpenAI-compatible HTTP provider
 ```
 
-The project is intentionally **provider-neutral** at the boundary. The current implementation exposes an `AIProvider` contract and a deterministic fake provider, while real provider integrations are reserved for later phases.
+The architecture deliberately avoids premature microservices. A component should become a separate service only when scale, isolation, ownership, or operational evidence justifies it.
 
-## Repository Structure
+## API surface
+
+### Health
 
 ```text
-wealth-brain/
-├── alembic/
-│   ├── env.py
-│   └── versions/
-│       └── 0001_conversations.py
-├── src/
-│   └── wealthbrain/
-│       ├── api/
-│       │   ├── conversations.py
-│       │   └── decisions.py
-│       ├── config/
-│       │   └── settings.py
-│       ├── domain/
-│       │   └── decisions.py
-│       ├── infrastructure/
-│       │   ├── database.py
-│       │   └── models.py
-│       ├── modules/
-│       │   ├── advisors/
-│       │   ├── ai/
-│       │   ├── decisions/
-│       │   ├── evaluation/
-│       │   ├── orchestration/
-│       │   ├── research/
-│       │   └── conversations/
-│       └── main.py
-├── tests/
-│   ├── test_ai_provider.py
-│   ├── test_conversation_contracts.py
-│   ├── test_decision_engine.py
-│   ├── test_domain_decisions.py
-│   ├── test_health.py
-│   └── test_settings.py
-├── .github/workflows/ci.yml
-├── Dockerfile
-├── docker-compose.yml
-├── alembic.ini
-├── pyproject.toml
-└── README.md
+GET  /health
+GET  /health/ready
 ```
 
-## Decision Workspace API
+### Conversations
 
-The current API supports creating a decision and incrementally attaching structured context before requesting a report.
+```text
+POST   /conversations
+GET    /conversations
+GET    /conversations/{id}
+PATCH  /conversations/{id}
+DELETE /conversations/{id}
+
+POST   /conversations/{id}/messages
+GET    /conversations/{id}/messages
+```
+
+### Decisions
 
 ```text
 POST /decisions
@@ -197,191 +264,83 @@ GET  /decisions/{id}/report
 GET  /decisions/{id}/audit
 GET  /decisions/{id}/questions
 GET  /decisions/{id}/next-question
-GET  /decisions/{id}/research-plan
 GET  /decisions/{id}/advisors
+POST /decisions/{id}/ai-advisor
 GET  /decisions/{id}/quality
+GET  /decisions/{id}/evaluation-artifact
+GET  /decisions/{id}/evidence-sufficiency
 GET  /decisions/{id}/ai-critique
+GET  /decisions/{id}/research-plan
+POST /decisions/{id}/research
+GET  /decisions/{id}/related-cases
+POST /decisions/{id}/safety-check
 ```
 
-The report combines deterministic scoring, risk analysis, evidence critique, and a human-review-required synthesis.
-
-## Current API
-
-The Phase 01 API provides the minimum persistence boundary needed for the later conversation system.
-
-### Health
-
-```http
-GET /health
-GET /health/ready
-```
-
-`/health` is a liveness check and does not require a working database connection.
-
-`/health/ready` verifies database connectivity and returns HTTP 503 when the database is not ready.
-
-### Conversations
-
-```http
-POST   /conversations
-GET    /conversations
-GET    /conversations/{conversation_id}
-PATCH  /conversations/{conversation_id}
-DELETE /conversations/{conversation_id}
-```
-
-### Messages
-
-```http
-POST /conversations/{conversation_id}/messages
-GET  /conversations/{conversation_id}/messages
-```
-
-The current conversation API is intentionally simple. Authentication, authorization, streaming responses, and tool execution remain later hardening/product phases.
-
-## Domain Foundation
-
-The first domain object is a bounded `DecisionContext`.
-
-It currently captures:
-
-- `conversation_id`
-- decision text
-- decision type
-- capital at risk, when applicable
-- time horizon in months
-
-Supported decision types currently include:
+### Historical knowledge
 
 ```text
-investment
-purchase
-business
-career
-capital_allocation
-other
+POST /knowledge/cases
+POST /knowledge/cases/search
+GET  /knowledge/cases/{id}
 ```
 
-This is deliberately a small foundation. The domain model is expected to grow as later phases establish the actual decision concepts instead of prematurely designing the entire system.
+Interactive OpenAPI documentation is available at `/docs` when the API is running.
 
-## AI Provider Boundary
-
-The current AI layer defines a provider contract:
+## Repository structure
 
 ```text
-CompletionRequest
-       ↓
-     AIProvider
-       ↓
-CompletionResponse
+wealth-brain/
+├── alembic/
+│   └── versions/
+│       ├── 0001_conversations.py
+│       ├── 0002_decision_workspace.py
+│       ├── 0003_decision_audit_events.py
+│       ├── 0004_evidence_provenance.py
+│       ├── 0005_knowledge_cases.py
+│       └── 0006_research_runs.py
+├── src/
+│   └── wealthbrain/
+│       ├── api/
+│       ├── config/
+│       ├── domain/
+│       ├── infrastructure/
+│       ├── modules/
+│       │   ├── advisors/
+│       │   ├── ai/
+│       │   ├── decisions/
+│       │   ├── evaluation/
+│       │   ├── evidence/
+│       │   ├── knowledge/
+│       │   ├── orchestration/
+│       │   ├── research/
+│       │   ├── safety/
+│       │   └── conversations/
+│       └── main.py
+├── tests/
+├── .github/workflows/
+├── Dockerfile
+├── docker-compose.yml
+├── pyproject.toml
+└── README.md
 ```
 
-The initial implementation includes:
+## Database migrations
 
-- `FakeAIProvider` for deterministic local execution;
-- `FailingAIProvider` for failure-path tests;
-- provider-specific exception types;
-- a provider factory that currently permits only the fake provider.
+The current Alembic chain is:
 
-Real provider credentials are intentionally absent from the repository.
-
-The planned architecture can later accommodate providers such as OpenAI, Anthropic, or Google without coupling the domain layer to a particular vendor.
-
-## Persistence
-
-The application uses:
-
-- PostgreSQL 16;
-- SQLAlchemy 2.x asynchronous APIs;
-- `asyncpg`;
-- Alembic migrations.
-
-The initial schema contains:
-
-- `conversations`
-- `messages`
-
-Messages use a foreign key to conversations with cascading deletion.
-
-Schema creation is handled by Alembic rather than by application startup side effects.
-
-## Configuration
-
-Configuration is environment-driven through Pydantic Settings.
-
-Example:
-
-```env
-APP_ENV=development
-PORT=8000
-DATABASE_URL=postgresql+asyncpg://wealthbrain:wealthbrain@db:5432/wealthbrain
-DEFAULT_AI_PROVIDER=fake
-DEFAULT_AI_MODEL=wealthbrain-test
-AI_BASE_URL=https://api.openai.com/v1
-AI_TIMEOUT_SECONDS=30
-AI_API_KEY=<set outside source control>
-LOG_LEVEL=INFO
-CORS_ORIGINS=http://localhost:3000
+```text
+0001 conversations
+   ↓
+0002 decision workspace
+   ↓
+0003 audit events
+   ↓
+0004 evidence provenance
+   ↓
+0005 historical knowledge
+   ↓
+0006 research runs
 ```
-
-Production configuration rejects the wildcard CORS origin.
-
-Credentials and local environment files are not committed.
-
-## Local Development
-
-The project uses Python 3.12+ and the `uv` workflow.
-
-### Install
-
-```powershell
-uv sync --all-groups
-```
-
-### Run the API
-
-For host-based development, set `DATABASE_URL` in `.env` to a PostgreSQL instance reachable from the host, for example:
-
-```env
-DATABASE_URL=postgresql+asyncpg://wealthbrain:wealthbrain@localhost:5432/wealthbrain
-```
-
-Then:
-
-```powershell
-uv run alembic upgrade head
-uv run uvicorn wealthbrain.main:app --reload
-```
-
-FastAPI exposes interactive API documentation at `/docs`, alternative documentation at `/redoc`, and the OpenAPI schema at `/openapi.json`.
-
-### Run checks
-
-```powershell
-uv run ruff check .
-uv run mypy
-uv run pytest
-```
-
-### Run with Docker Compose
-
-Create a local `.env` based on `.env.example`, then:
-
-```powershell
-docker compose up --build
-```
-
-Docker Compose overrides `DATABASE_URL` so the API connects to the `db` service.
-
-The API is exposed on port `8000` by default.
-
-To stop the stack:
-
-```powershell
-docker compose down
-```
-
-## Database Migrations
 
 Apply migrations with:
 
@@ -389,28 +348,78 @@ Apply migrations with:
 uv run alembic upgrade head
 ```
 
-The current migration creates the conversations and messages tables.
+## Configuration
 
-## Testing Strategy
+Configuration is environment-driven.
 
-The current test suite focuses on foundation contracts and failure boundaries.
+Example development settings:
 
-It covers:
+```env
+APP_ENV=development
+DATABASE_URL=postgresql+asyncpg://wealthbrain:wealthbrain@localhost:5432/wealthbrain
 
-- AI provider response validation;
-- provider failure handling;
-- cancellation behavior;
-- provider factory boundaries;
-- message input normalization and validation;
-- decision-domain validation;
-- liveness behavior without a database;
-- CORS configuration safety.
+DEFAULT_AI_PROVIDER=fake
+DEFAULT_AI_MODEL=wealthbrain-test
+AI_BASE_URL=https://api.openai.com/v1
+AI_API_KEY=
 
-As the project grows, the test strategy is expected to expand to domain invariants, workflow behavior, research/evidence correctness, quantitative calculations, model-provider behavior, safety rules, evaluation, persistence boundaries, and end-to-end decision flows.
+DEFAULT_RESEARCH_PROVIDER=fake
+RESEARCH_SEARCH_URL=
+RESEARCH_API_KEY=
+RESEARCH_TIMEOUT_SECONDS=20
+RESEARCH_MAX_RESPONSE_BYTES=1000000
+RESEARCH_MAX_RESULTS=5
+RESEARCH_USER_AGENT=WealthBrainResearch/0.2
 
-## CI
+API_KEY=
+RATE_LIMIT_REQUESTS=60
+RATE_LIMIT_WINDOW_SECONDS=60
 
-GitHub Actions is configured to validate:
+LOG_LEVEL=INFO
+CORS_ORIGINS=http://localhost:3000
+```
+
+Production deployments must keep credentials outside source control and must configure the API key explicitly.
+
+## Local development
+
+Install dependencies:
+
+```powershell
+uv sync --all-groups
+```
+
+Run migrations:
+
+```powershell
+uv run alembic upgrade head
+```
+
+Start the API:
+
+```powershell
+uv run uvicorn wealthbrain.main:app --reload
+```
+
+Run checks:
+
+```powershell
+uv run ruff check .
+uv run mypy
+uv run pytest
+```
+
+Run the full container stack:
+
+```powershell
+docker compose up --build
+```
+
+## Testing and CI
+
+The repository treats automated checks as evidence for implemented scope.
+
+Current CI sequence:
 
 ```text
 uv sync
@@ -424,181 +433,67 @@ pytest
 Docker build
 ```
 
-The repository treats passing checks as evidence for the implemented scope only; CI success does not imply that unfinished product phases exist.
+The verified code checkpoint immediately before this documentation update is:
 
-## Product Roadmap
+`eef42bbfc99a30a10417597a38c05492836a6b5a`
 
-The roadmap is intentionally broader than the current implementation.
+Its CI run completed successfully with:
 
-### Phase 01 — Project Foundation
-Core service, persistence, configuration, provider boundary, health checks, tests, CI, and container scaffold.
+- Ruff ✅
+- mypy ✅
+- pytest ✅
+- Docker build ✅
 
-### Phase 02 — Domain Core
-Establish the durable domain model for decisions, alternatives, criteria, constraints, evidence, assumptions, and outcomes.
+The release metadata commits following that checkpoint are documentation/version alignment work and will be re-verified by CI.
 
-### Phase 03 — Persistence
-Expand repositories and schema around the domain while preserving clean application boundaries.
+## Open-source direction
 
-### Phase 04 — Conversation System
-Build the conversation lifecycle that will carry decision discovery and later reasoning workflows.
+The repository remains **private**.
 
-### Phase 05 — AI Provider Foundation
-Introduce real model-provider adapters behind the existing provider boundary.
+It is structured for a possible future public release and already includes:
 
-### Phase 06 — Basic Orchestrator
-Coordinate deterministic application steps and AI calls without prematurely introducing complex autonomy.
+- MIT License;
+- `CONTRIBUTING.md`;
+- `SECURITY.md`;
+- `CODE_OF_CONDUCT.md`;
+- `docs/ARCHITECTURE.md`;
+- `docs/SAFETY.md`;
+- `docs/OPEN_SOURCE.md`;
+- synthetic-data expectations.
 
-### Phase 07 — Adaptive Interview
-Enable the system to identify missing decision information and ask targeted follow-up questions.
+Before making the repository public, the project still needs a final security/history review, public API review, dependency/license review, and confirmation that no private decision data exists in Git history.
 
-### Phase 08 — Research Engine
-Build the research workflow needed to gather information relevant to a decision.
+## Roadmap
 
-### Phase 09 — Evidence System
-Represent sources, claims, provenance, confidence, and evidence-to-conclusion relationships.
+The original 25-phase roadmap is preserved in `Git-Projects-Phase/projects/WealthBrain.md`.
 
-### Phase 10 — Wealth Knowledge / Historical Cases
-Build structured domain knowledge and historical decision cases.
+The next unfinished areas are centered on:
 
-### Phase 11 — Specialist Advisors
-Introduce specialist reasoning modules for distinct analytical perspectives.
+- stronger evaluation and regression integration;
+- deeper safety enforcement;
+- production hardening;
+- final release-candidate verification.
 
-### Phase 12 — Quantitative Engine
-Add quantitative calculations and decision-support models where mathematics materially improves the decision.
+The roadmap is not being replaced by this README.
 
-### Phase 13 — Risk Analysis
-Represent uncertainty, downside scenarios, sensitivities, and decision-relevant risk.
+## Design principles
 
-### Phase 14 — Critique Engine
-Critically inspect intermediate reasoning, assumptions, evidence quality, and proposed conclusions.
+**Decision-first:** reason about a bounded decision rather than silently turning every conversation into a permanent profile.
 
-### Phase 15 — Final Synthesis
-Produce a structured synthesis that separates evidence, assumptions, uncertainty, alternatives, and recommendation-level conclusions.
+**Evidence before confidence:** insufficient evidence is a visible state.
 
-### Phase 16 — Decision Journal
-Preserve decisions, reasoning, outcomes, and later lessons for longitudinal learning.
+**Deterministic where possible:** quantitative calculations, ranking, risk scoring, and sufficiency checks should be reproducible.
 
-### Phase 17 — Evaluation Framework
-Measure system quality, regression, reliability, and decision-support behavior.
+**AI as a component, not the system:** model calls sit behind explicit contracts.
 
-### Phase 18 — Safety / Guardrails
-Establish explicit boundaries for high-consequence financial and personal decision contexts.
+**Human control:** consequential external actions remain outside the application's autonomous boundary.
 
-### Phase 19 — Observability
-Add structured tracing, metrics, failure visibility, and operational diagnostics.
+**Auditable evolution:** decisions, research runs, and important changes should leave inspectable metadata.
 
-### Phase 20 — Production Hardening
-Improve reliability, security, data integrity, configuration safety, and operational resilience.
-
-### Phase 21 — End-to-End Workflows
-Connect the major components into coherent complete decision workflows.
-
-### Phase 22 — Real AI Integration
-Move from deterministic scaffolding to real model-backed execution across the intended workflows.
-
-### Phase 23 — Deployment
-Establish a controlled deployment architecture suitable for the private application.
-
-### Phase 24 — Documentation
-Document architecture, decisions, operating procedures, limitations, and reproducibility.
-
-### Phase 25 — Release Candidate
-Verify the complete planned scope against the real implementation and produce a stable release candidate.
-
-## Safety and Scope
-
-WealthBrain operates in a domain where incorrect reasoning can have significant financial consequences.
-
-The project therefore treats the following as design requirements rather than optional polish:
-
-- clear evidence provenance;
-- explicit uncertainty;
-- separation of facts from assumptions;
-- visible failure and insufficiency states;
-- reproducible quantitative calculations;
-- auditable decision history;
-- human control over consequential actions;
-- resistance to unsupported certainty.
-
-The system is not intended to autonomously move money, execute trades, or make irreversible financial decisions on its own.
-
-## Design Principles
-
-### Decision-first
-
-The primary object is the decision and its context, not an ever-growing user profile.
-
-### Evidence before confidence
-
-A confident answer without sufficient evidence is a failure mode, not a success condition.
-
-### Quantitative where useful
-
-Mathematics and statistical analysis should be introduced when they improve decision quality, not merely to make the system look sophisticated.
-
-### Modular reasoning
-
-Research, quantitative analysis, specialist perspectives, critique, and synthesis should remain separable so that each can be tested and improved independently.
-
-### Provider neutrality
-
-The core application should depend on stable AI contracts rather than on one model vendor.
-
-### Reproducibility
-
-Important calculations and evaluations should be reproducible and inspectable.
-
-### Conservative claims
-
-A working prototype should not be described as a production financial adviser, autonomous agent, or validated investment system until the corresponding evidence exists.
-
-## Current Boundary
-
-At `0.1.0`, WealthBrain is a **foundation project**.
-
-It has the infrastructure necessary to continue building the decision system, but it does not yet implement the distinctive intelligence described by the long-term roadmap.
-
-That distinction is intentional: the repository should show the real state of the system rather than presenting an architectural vision as if it were already implemented.
-
-## Planned End State
-
-The long-term system can be summarized as:
-
-```text
-                 ┌───────────────────┐
-                 │ Decision Context  │
-                 └─────────┬─────────┘
-                           ↓
-                    Adaptive Interview
-                           ↓
-                  Research + Evidence
-                    ↙          ↘
-           Quantitative       Specialists
-              Analysis          / Advisors
-                    ↘          ↙
-                         Risk
-                           ↓
-                       Critique
-                           ↓
-                       Synthesis
-                           ↓
-                    Decision Journal
-                           ↓
-                      Evaluation
-                           ↓
-                   System Improvement
-```
-
-The architecture will evolve through the roadmap; this diagram describes the intended direction, not the current implementation.
-
-## Privacy
-
-This is a **private project**.
-
-The repository is intended for personal development and experimentation around the WealthBrain system. Real financial or personally sensitive information should not be committed to source control.
-
-`*.env` files and local development data are excluded from version control.
+**Conservative claims:** implemented code, measured behavior, and roadmap intent are kept separate.
 
 ## License
 
-The repository currently carries the MIT License and is being prepared for a possible future public release. The repository remains private until that decision is made.
+The project is licensed under the MIT License.
+
+The repository is currently private. The license does not imply that the repository is already publicly available.
