@@ -26,7 +26,11 @@ class Settings(BaseSettings):
     research_timeout_seconds: float = Field(default=20.0, gt=0, le=120)
     research_max_response_bytes: int = Field(default=1_000_000, ge=1_024, le=10_000_000)
     research_max_results: int = Field(default=5, ge=1, le=20)
-    research_user_agent: str = Field(default="WealthBrainResearch/0.2", min_length=1, max_length=200)
+    research_user_agent: str = Field(
+        default="WealthBrainResearch/0.2",
+        min_length=1,
+        max_length=200,
+    )
     log_level: str = "INFO"
     cors_origins: list[str] = Field(default_factory=list)
 
