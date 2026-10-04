@@ -36,6 +36,18 @@ class Settings(BaseSettings):
     rate_limit_window_seconds: float = Field(default=60.0, gt=0, le=3_600)
     log_level: str = "INFO"
     cors_origins: list[str] = Field(default_factory=list)
+    trusted_hosts: list[str] = Field(default_factory=lambda: ["*"])
+
+    @field_validator("trusted_hosts", mode="before")
+    @classmethod
+    def validate_trusted_hosts(
+        cls, value: list[str] | str, info: ValidationInfo
+    ) -> list[str]:
+        raw_hosts = value.split(",") if isinstance(value, str) else value
+        hosts = [host.strip() for host in raw_hosts if host.strip()]
+        if info.data.get("app_env") == "production" and "*" in hosts:
+            raise ValueError("trusted_hosts must not contain '*' in production")
+        return hosts
 
     @field_validator("cors_origins", mode="before")
     @classmethod
