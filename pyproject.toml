@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "wealthbrain"
 version = "0.3.1"
-description = "Decision intelligence for wealth and capital allocation"
+description = "Evidence-grounded decision support for structured, auditable decision workflows"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
