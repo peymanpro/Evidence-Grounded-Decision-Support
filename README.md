@@ -389,7 +389,7 @@ The release workflow uses the version in `pyproject.toml` and validates the code
 - **No tag reuse:** an existing version tag is never moved to newer code. A branch push using an already-tagged version does not publish another release.
 - **Release notes:** GitHub generates release notes automatically; an existing release is left unchanged.
 
-For a future release, increment the version in `pyproject.toml`, add the corresponding entry to `CHANGELOG.md`, and merge the change into `main`. Use stable `vMAJOR.MINOR.PATCH` tags. The current published baseline is `v0.3.1`; existing release tags and artifacts remain unchanged.
+For a future release, increment the version in `pyproject.toml`, add the corresponding entry to `CHANGELOG.md`, and merge the change into `main`. Use stable `vMAJOR.MINOR.PATCH` tags. The current published baseline is `v0.3.1`; existing release tags and artifacts remain unchanged. A subsequent version must be new in both `pyproject.toml` and `CHANGELOG.md` before the main-branch release workflow can publish it.
 
 ## Repository layout
 
