@@ -1,6 +1,6 @@
 # Safety Boundary
 
-WealthBrain is designed as a decision-intelligence system, not an autonomous action system.
+Evidence-Grounded Decision Support is designed as a decision-intelligence system, not an autonomous action system.
 
 The software may organize evidence, compare alternatives, calculate deterministic scores, surface risks, and produce structured analysis. It must not silently convert an analysis result into an irreversible external action.
 
