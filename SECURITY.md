@@ -1,6 +1,6 @@
 # Security Policy
 
-WealthBrain is intended to handle sensitive decision context. Security issues should be treated seriously.
+Evidence-Grounded Decision Support is intended to handle sensitive decision context. Security issues should be treated seriously.
 
 ## Reporting
 
