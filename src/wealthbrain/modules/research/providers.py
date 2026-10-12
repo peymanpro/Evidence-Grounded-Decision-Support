@@ -188,7 +188,7 @@ class HttpSourceFetcher(SourceFetcher):
         self,
         timeout_seconds: float = 20.0,
         max_response_bytes: int = 2_000_000,
-        user_agent: str = "WealthBrainResearch/0.2",
+        user_agent: str = "EvidenceGroundedDecisionSupportResearch/0.3.1",
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self._timeout = timeout_seconds
