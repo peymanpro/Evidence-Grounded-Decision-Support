@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     research_max_response_bytes: int = Field(default=1_000_000, ge=1_024, le=10_000_000)
     research_max_results: int = Field(default=5, ge=1, le=20)
     research_user_agent: str = Field(
-        default="WealthBrainResearch/0.2",
+        default="EvidenceGroundedDecisionSupportResearch/0.3.1",
         min_length=1,
         max_length=200,
     )
