@@ -1,6 +1,6 @@
 # Architecture
 
-WealthBrain uses a modular monolith as its current architecture.
+Evidence-Grounded Decision Support uses a modular monolith as its current architecture.
 
 ## Layers
 
