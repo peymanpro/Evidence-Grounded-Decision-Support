@@ -442,6 +442,20 @@ The original 25-phase roadmap is maintained separately in the Git-Projects-Phase
 
 Remaining work is focused on stronger evaluation/regression integration, deeper safety enforcement, additional production hardening, and continued release-candidate verification. The roadmap is not replaced by this README.
 
+## Related engineering projects
+
+The following public repositories explore adjacent parts of the broader AI/software-engineering portfolio. They are **separate projects**, not runtime dependencies of this application.
+
+| Project | Focus |
+|---|---|
+| [AI Evaluation Engineering](https://github.com/peymanpro/AI-Evaluation-Engineering) | Reusable graders, evaluation suites, statistical comparisons, and regression gates |
+| [Pretrained LLM Adaptation](https://github.com/peymanpro/Pretrained-LLM-Adaptation) | Reproducible LoRA/PEFT adaptation, held-out evaluation, and inference |
+| [Evidence-Grounded RAG](https://github.com/peymanpro/Evidence-Grounded-RAG) | Retrieval, grounded generation, citation verification, and retrieval evaluation |
+| [Production Agent Systems](https://github.com/peymanpro/Production-Agent-Systems) | Tool contracts, runtime policy, bounded retries, checkpoint/recovery, trace, and audit |
+| [RateLimitEngine](https://github.com/peymanpro/RateLimitEngine) | A separate .NET rate-limiting library with in-memory and Redis-backed implementations |
+
+The separation is intentional: each repository makes a different engineering boundary inspectable, while this project brings structured decisions, evidence provenance, quantitative reasoning, evaluation, and safety checks into one decision-support workflow.
+
 ## Design principles
 
 **Decision-first** — model a bounded decision explicitly instead of silently turning every conversation into a permanent profile.
