@@ -381,14 +381,15 @@ Tests use deterministic providers where possible and should not require real mod
 
 ## Automated releases
 
-The release workflow is version-driven and runs the validation checks before publishing a GitHub Release.
+The release workflow uses the version in `pyproject.toml` and validates the code before publishing a GitHub Release.
 
-- **Automatic from main:** after a successful validation run, the workflow publishes the version declared in pyproject.toml if that version has not already been released.
-- **Tag-triggered:** pushing a tag such as v0.3.2 runs validation and requires the tag version to match the package version in pyproject.toml.
-- **Manual:** the workflow can also be started from GitHub Actions. An optional version input must match the project version.
-- **Release notes:** GitHub generates release notes automatically. An already-published version is left unchanged.
+- **Automatic from main:** if the version has no existing tag, the workflow runs Ruff, mypy, pytest, and the Docker build, then creates the matching release.
+- **Tag-triggered:** pushing a tag such as `v0.3.2` requires an exact match with the project version and runs the release checks against that tag.
+- **Manual:** GitHub Actions supports a manual run; an optional version input must match `pyproject.toml`.
+- **No tag reuse:** an existing version tag is never moved to newer code. A branch push using an already-tagged version does not publish another release.
+- **Release notes:** GitHub generates release notes automatically; an existing release is left unchanged.
 
-To prepare a future release, update the version in pyproject.toml and add the corresponding entry to CHANGELOG.md, then merge the changes into main. The workflow will publish that version only after linting, typing, tests, and the Docker build succeed. Stable release tags use the vMAJOR.MINOR.PATCH format.
+For a future release, increment the version in `pyproject.toml`, add the corresponding entry to `CHANGELOG.md`, and merge the change into `main`. Use stable `vMAJOR.MINOR.PATCH` tags.
 
 ## Repository layout
 
