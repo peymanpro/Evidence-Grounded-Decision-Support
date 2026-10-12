@@ -1,13 +1,13 @@
-# WealthBrain
+# Evidence-Grounded Decision Support
 
-**WealthBrain is a private decision-intelligence application for structured, evidence-aware reasoning about wealth, capital allocation, career, business, and other high-consequence decisions.**
+**Evidence-Grounded Decision Support is an AI-assisted decision-support system for structured, evidence-aware reasoning across career, business, wealth, capital allocation, and other consequential choices.**
 
 It is not a trading bot, autonomous money manager, generic chatbot, or replacement for professional financial, legal, tax, or investment advice.
 
 ## Current status
 
 **Version:** 0.3.1  
-**Repository:** Private  
+**Repository:** Public  
 **Architecture:** Modular monolith  
 **Primary stack:** Python 3.12 · FastAPI · SQLAlchemy async · PostgreSQL · Alembic · Docker
 
@@ -183,7 +183,7 @@ The rate limiter is intentionally documented as single-process. Distributed rate
 ## Architecture
 
 ```text
-                         WealthBrain API
+            Evidence-Grounded Decision Support API
                               │
           ┌───────────────────┼───────────────────┐
           │                   │                   │
@@ -292,7 +292,7 @@ Interactive OpenAPI documentation is available at `/docs` when the API is runnin
 ## Repository structure
 
 ```text
-wealth-brain/
+Evidence-Grounded-Decision-Support/
 ├── alembic/
 │   └── versions/
 │       ├── 0001_conversations.py
@@ -372,7 +372,7 @@ RESEARCH_API_KEY=
 RESEARCH_TIMEOUT_SECONDS=20
 RESEARCH_MAX_RESPONSE_BYTES=1000000
 RESEARCH_MAX_RESULTS=5
-RESEARCH_USER_AGENT=WealthBrainResearch/0.3.1
+RESEARCH_USER_AGENT=EvidenceGroundedDecisionSupportResearch/0.3.1
 
 API_KEY=
 RATE_LIMIT_REQUESTS=60
@@ -450,26 +450,15 @@ Its CI run completed successfully with:
 
 Subsequent documentation-only changes do not change the runtime behavior described above.
 
-## Open-source direction
+## Public release and security posture
 
-The repository remains **private**.
+The repository is public and licensed under MIT. It includes contribution guidance, a security policy, a code of conduct, architecture and safety documentation, and expectations to use synthetic data in tests and examples.
 
-It is structured for a possible future public release and already includes:
-
-- MIT License;
-- `CONTRIBUTING.md`;
-- `SECURITY.md`;
-- `CODE_OF_CONDUCT.md`;
-- `docs/ARCHITECTURE.md`;
-- `docs/SAFETY.md`;
-- `docs/OPEN_SOURCE.md`;
-- synthetic-data expectations.
-
-Before making the repository public, the project still needs a final security/history review, public API review, dependency/license review, and confirmation that no private decision data exists in Git history.
+Public availability does not mean the application is ready to handle real users' sensitive data. Before any such deployment, review Git history for accidentally committed credentials or private decision data, review dependencies and public API boundaries, and complete the remaining production-security work. If a credential is ever found in history, revoke or rotate it immediately; deleting the visible file alone is not sufficient.
 
 ## Roadmap
 
-The original 25-phase roadmap is preserved in `Git-Projects-Phase/projects/WealthBrain.md`.
+The original 25-phase roadmap is maintained separately in the `Git-Projects-Phase` workspace.
 
 The next unfinished areas are centered on:
 
@@ -498,6 +487,4 @@ The roadmap is not being replaced by this README.
 
 ## License
 
-The project is licensed under the MIT License.
-
-The repository is currently private. The license does not imply that the repository is already publicly available.
+The project is licensed under the MIT License. See `LICENSE` for the full text.
