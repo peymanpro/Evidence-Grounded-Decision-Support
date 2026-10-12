@@ -1,244 +1,232 @@
 # Evidence-Grounded Decision Support
 
-**Evidence-Grounded Decision Support is an AI-assisted decision-support system for structured, evidence-aware reasoning across career, business, wealth, capital allocation, and other consequential choices.**
+[![CI](https://github.com/peymanpro/Evidence-Grounded-Decision-Support/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/peymanpro/Evidence-Grounded-Decision-Support/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/peymanpro/Evidence-Grounded-Decision-Support)](https://github.com/peymanpro/Evidence-Grounded-Decision-Support/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-It is not a trading bot, autonomous money manager, generic chatbot, or replacement for professional financial, legal, tax, or investment advice.
+**An AI-assisted decision-support backend for turning consequential choices into structured, evidence-aware, and auditable decision workflows.**
 
-## Current status
+Evidence-Grounded Decision Support combines deterministic quantitative analysis with bounded research retrieval, evidence provenance, specialist perspectives, model-assisted critique, evaluation artifacts, explicit safety policies, and audit events. It is designed for decisions involving career, business, wealth, capital allocation, and other areas where assumptions, uncertainty, and evidence quality matter.
 
-**Version:** 0.3.1  
-**Repository:** Public  
-**Architecture:** Modular monolith  
-**Primary stack:** Python 3.12 · FastAPI · SQLAlchemy async · PostgreSQL · Alembic · Docker
+> **Scope and safety:** This is a decision-support engineering project, not a trading bot, autonomous money manager, or validated financial-advisory product. It does not replace professional financial, investment, legal, or tax advice. Consequential external actions remain outside the application's autonomous boundary.
 
-The current release contains a working decision-intelligence core with deterministic analysis, adaptive interviewing, research/source retrieval boundaries, evidence provenance, historical cases, specialist perspectives, model-assisted critique, evaluation artifacts, executable safety checks, audit events, observability, and a basic production security boundary.
+## Project status
 
-The project is still evolving. It should not be described as a validated financial-advisory product or as production-complete autonomous AI.
+| Item | Current status |
+|---|---|
+| Version | **0.3.1** |
+| Architecture | Modular monolith |
+| Runtime | Python 3.12 · FastAPI |
+| Persistence | Async SQLAlchemy · PostgreSQL · Alembic |
+| Delivery | Docker · GitHub Actions |
+| License | MIT |
 
-## What is implemented
+The repository contains a working backend and test suite, but the application is still evolving. A passing CI run is evidence that the configured checks pass; it is not proof of financial correctness, real-world evidence truth, or complete production readiness.
 
-### Decision workflow
+## Why this project
 
-A decision can be represented with:
+Consequential decisions are not just text-generation problems. A useful system needs to represent the choice explicitly, reveal missing information, separate calculations from model output, track where evidence came from, and prevent low-confidence analysis from silently becoming an authoritative recommendation.
+
+This project puts those boundaries into the software:
+
+- **Explicit decision model:** alternatives, weighted criteria, scores, evidence, risks, mitigations, and decision-journal entries are represented as structured data.
+- **Reproducible quantitative core:** deterministic decision and risk analysis is kept separate from model-generated content.
+- **Evidence with provenance:** sources, retrieval metadata, content hashes, excerpts, and evidence-quality states remain inspectable.
+- **Adaptive information gathering:** the API identifies important gaps in a decision and can ask for the next missing piece of information.
+- **Provider-neutral AI and research:** external providers sit behind explicit interfaces rather than being coupled to the core domain logic.
+- **Evaluation and safety boundaries:** quality checks, evaluation artifacts, acknowledgement requirements, blocking issues, and audit events are first-class parts of the workflow.
+- **Human control:** AI assists analysis; it does not autonomously execute consequential external actions.
+
+## Decision lifecycle
+
+The modules support a structured workflow rather than a single unconstrained prompt.
+
+~~~text
+Decision context and alternatives
+              |
+              v
+     Adaptive interview
+              |
+              v
+   Research and source retrieval
+              |
+              v
+     Evidence + provenance
+              |
+              v
+ Quantitative and risk analysis
+              |
+              v
+ Specialist perspectives and critique
+              |
+              v
+       Structured synthesis
+              |
+              v
+     Evaluation and safety checks
+              |
+              v
+     Report + audit trail
+~~~
+
+The exact stages depend on the decision state and the API operation. Research retrieval does not itself establish that a claim is true; evidence linking and quality assessment remain separate responsibilities.
+
+## Implemented capabilities
+
+### 1. Structured decision workspace
+
+A decision can contain:
 
 - decision context and type;
-- alternatives;
-- weighted criteria;
-- scores;
-- evidence and provenance;
+- competing alternatives;
+- weighted criteria and score matrices;
+- supporting or challenging evidence;
 - risks and mitigations;
-- journal entries;
-- deterministic analysis;
-- critique;
-- structured synthesis;
-- audit events.
+- journal entries and audit events.
 
-The quantitative core is deterministic and reproducible. Model output is kept outside the core numerical calculations.
+The engine provides deterministic quantitative comparison, sensitivity analysis, risk scoring, critique, and structured synthesis. Model output does not replace the underlying numeric calculations.
 
-### Adaptive interview
+### 2. Adaptive interview
 
-The system inspects the current decision state and identifies missing information.
+The interview logic inspects the current decision state and identifies missing inputs. Current question priorities include:
 
-Current question priorities include:
-
-- capital exposure for financially relevant decisions;
+- capital exposure where financially relevant;
 - time horizon;
-- missing alternatives;
-- missing criteria;
+- missing alternatives or criteria;
 - incomplete score matrices;
-- missing evidence;
+- absent evidence;
 - missing risks.
 
-The API can return either the full question set or the single next question.
+The API can return the complete set of questions or only the next question, making the interview usable incrementally.
 
-### Research engine
+### 3. Bounded, provider-neutral research
 
-Research is provider-neutral.
+The research layer defines typed research questions and execution requests, with a configurable HTTP search-provider adapter and a deterministic static provider for tests.
 
-Current boundaries include:
+Source-fetching boundaries include:
 
-- typed research questions and execution requests;
-- configurable HTTP search-provider adapter;
-- deterministic static provider for tests;
-- bounded source fetching;
-- HTTP/HTTPS-only source URLs;
-- rejection of credential-bearing URLs;
-- rejection of local/private/reserved address targets;
+- HTTP/HTTPS URLs only;
+- rejection of credential-bearing URLs and local, private, or reserved address targets;
 - redirects disabled by default;
-- bounded response bodies;
-- supported text/HTML/JSON content types;
-- source normalization;
-- SHA-256 content hashes;
-- retrieval timestamps and HTTP metadata;
+- bounded response size and timeouts;
+- supported text, HTML, and JSON content types;
+- normalized source metadata, retrieval timestamps, HTTP metadata, and SHA-256 content hashes;
 - persisted research-run metadata.
 
-The research layer deliberately does **not** invent claims. Claim extraction and evidence linking remain separate responsibilities.
+These controls reduce exposure to unsafe outbound requests; they do not remove the need for deployment-level network controls. The research layer deliberately does **not** invent claims or silently equate retrieved text with verified evidence.
 
-### Evidence system
+### 4. Evidence provenance and sufficiency
 
-Evidence now carries both a claim and its provenance:
+Evidence records connect a claim with its available source context, including:
 
-- source URL;
-- publisher;
-- retrieval time;
-- status/content metadata;
-- content hash;
-- content length;
-- optional excerpt/locator;
-- quality state.
+- source URL and publisher;
+- retrieval time and status/content metadata;
+- content hash and content length;
+- optional excerpt or locator;
+- evidence-quality state.
 
-Quality states are:
+Current quality states are:
 
-`unverified`, `partially_verified`, `verified`, `challenged`.
+**unverified**, **partially_verified**, **verified**, and **challenged**.
 
-A deterministic evidence-sufficiency check reports:
+A deterministic sufficiency check reports supporting and challenging evidence counts, verified-supporting count, source-domain diversity, a sufficiency score, blocking issues, and warnings. This is an explicit policy signal for the application—not an independent proof that a source or claim is true.
 
-- supporting and challenging evidence counts;
-- verified-supporting count;
-- source-domain diversity;
-- sufficiency score;
-- blocking issues;
-- warnings.
+### 5. Historical decision knowledge
 
-### Historical knowledge
+The knowledge module stores structured historical cases with a title, summary, decision type, alternatives, outcome, lessons, optional source metadata, and a synthetic-data flag. Cases can be searched deterministically and related to a decision using decision type and text.
 
-The knowledge module stores structured historical decision cases with:
+### 6. Specialist perspectives
 
-- title and summary;
-- decision type;
-- alternatives;
-- outcome;
-- lessons;
-- optional source metadata;
-- synthetic-data flag.
+Two advisor layers are available:
 
-Cases can be searched deterministically and related to an existing decision by decision type and text.
+- **Deterministic panel:** evidence, quantitative, risk, and challenge perspectives.
+- **Model-backed advisors:** bounded versions of those roles through the AI provider abstraction, with human review retained.
 
-### Specialist advisors
+These perspectives are aids for reviewing a decision, not independent expert certifications.
 
-The project contains two advisor layers.
+### 7. Explicit AI provider boundary
 
-**Deterministic panel:** evidence, quantitative, risk, and challenge perspectives.
+The application depends on a small provider contract:
 
-**Model-backed advisor:** the same bounded roles can be executed through the provider abstraction, with human review remaining mandatory.
-
-### AI provider boundary
-
-The core depends on a small provider contract:
-
-```text
+~~~text
 CompletionRequest
-       ↓
+       |
+       v
     AIProvider
-       ↓
+       |
+       v
 CompletionResponse
-```
+~~~
 
-Current implementations include:
+Implementations include FakeAIProvider, FailingAIProvider, and an OpenAI-compatible HTTP adapter with timeout and provider-error boundaries. Tests can use deterministic providers without live model credentials. Provider credentials must be supplied through environment configuration, not committed to source control.
 
-- `FakeAIProvider`;
-- `FailingAIProvider`;
-- OpenAI-compatible HTTP adapter;
-- provider-specific error and timeout boundaries.
+### 8. Evaluation artifacts
 
-No provider credential is stored in the repository.
+The evaluation module provides decision-quality checks, blocking issues, structured evaluation artifacts, and canonical evaluation-input fingerprints. Fingerprints let regression tooling identify equivalent decision/evaluation inputs without relying on timestamps.
 
-### Evaluation
+The repository exposes evaluation artifacts and an evaluation-suite export endpoint so external regression workflows can consume structured results.
 
-The evaluation layer provides:
+### 9. Executable safety policy
 
-- decision-quality checks;
-- blocking issues;
-- structured evaluation artifacts;
-- canonical evaluation-input fingerprints.
+Safety constraints are enforced in application logic as well as documented:
 
-The fingerprint lets a later regression system refer to the same decision/evaluation input without relying on timestamps.
+- decision analysis can be returned with human review retained;
+- recommendation output can be blocked when required acknowledgement is absent, evidence is insufficient, or high-risk items remain;
+- consequential external action is denied by this application boundary.
 
-### Safety
+These are application-level controls. A real deployment still requires an appropriate identity, authorization, data-isolation, and operational-security design.
 
-Safety is implemented as executable policy, not only documentation.
+### 10. Observability and security baseline
 
-Current policy:
+Implemented runtime protections include request IDs, request-duration logging, separate liveness/readiness checks, a production API-key guard, Trusted Host validation, security response headers, a fixed-window rate limiter, and constrained outbound source fetching.
 
-- analysis is allowed as decision support, with human review retained;
-- recommendation output is blocked when acknowledgement is absent, evidence is insufficient, or high-risk items remain;
-- consequential external action is always denied by this application boundary.
-
-### Observability and security baseline
-
-Current runtime protections include:
-
-- request IDs;
-- request duration logging;
-- liveness/readiness separation;
-- production API-key guard;
-- Trusted Host validation;
-- security response headers;
-- fixed-window single-process rate limiting;
-- outbound source URL validation;
-- bounded network responses.
-
-The rate limiter is intentionally documented as single-process. Distributed rate limiting, full identity management, and deeper production hardening remain future work.
+The rate limiter is **single-process**, not distributed. Distributed throttling, full identity and access management, and deeper production hardening remain open work.
 
 ## Architecture
 
-```text
-            Evidence-Grounded Decision Support API
-                              │
-          ┌───────────────────┼───────────────────┐
-          │                   │                   │
-   Conversations          Decisions          Knowledge
-          │                   │
-          └────────────┬──────┘
-                       ↓
-                Application Services
-                       ↓
-             Deterministic / Domain Logic
-                       ↓
-                    Repositories
-                       ↓
-                SQLAlchemy + PostgreSQL
+The application is a modular monolith. This keeps domain logic and deployment simple while preserving boundaries that can be tested independently.
 
-Decision workflow
-   ↓
-Adaptive Interview
-   ↓
-Research + Source Retrieval
-   ↓
-Evidence + Provenance
-   ↓
-Quantitative + Risk Analysis
-   ↓
-Specialist Perspectives
-   ↓
-Critique
-   ↓
-Synthesis
-   ↓
-Evaluation / Safety / Audit
+~~~text
+FastAPI
+  |
+  +-- Conversations
+  +-- Decisions ---------------------------+
+  +-- Historical knowledge                 |
+                                           v
+                                  Application services
+                                           |
+                       +-------------------+-------------------+
+                       |                   |                   |
+                Deterministic logic   Research / evidence   AI providers
+                       |                   |                   |
+                       +-------------------+-------------------+
+                                           |
+                                   Repositories / ORM
+                                           |
+                                     PostgreSQL
+                                           |
+                                  Alembic migrations
 
-AI boundary
-   Application
-       ↓
-    AIProvider
-       ├── Fake provider
-       └── OpenAI-compatible HTTP provider
-```
+Cross-cutting boundaries:
+evaluation · safety · audit · observability · API security
+~~~
 
-The architecture deliberately avoids premature microservices. A component should become a separate service only when scale, isolation, ownership, or operational evidence justifies it.
+The project deliberately avoids premature microservices. A component should become a separate service only when scale, isolation, ownership, or operational evidence makes that separation worthwhile.
 
-## API surface
+## API overview
+
+Interactive OpenAPI documentation is available at **/docs** while the API is running.
 
 ### Health
 
-```text
-GET  /health
-GET  /health/ready
-```
+~~~http
+GET /health
+GET /health/ready
+~~~
 
 ### Conversations
 
-```text
+~~~http
 POST   /conversations
 GET    /conversations
 GET    /conversations/{id}
@@ -247,11 +235,11 @@ DELETE /conversations/{id}
 
 POST   /conversations/{id}/messages
 GET    /conversations/{id}/messages
-```
+~~~
 
 ### Decisions
 
-```text
+~~~http
 POST /decisions
 GET  /decisions/{id}
 
@@ -277,87 +265,71 @@ GET  /decisions/{id}/research-plan
 POST /decisions/{id}/research
 GET  /decisions/{id}/related-cases
 POST /decisions/{id}/safety-check
-```
+~~~
 
 ### Historical knowledge
 
-```text
+~~~http
 POST /knowledge/cases
 POST /knowledge/cases/search
 GET  /knowledge/cases/{id}
-```
+~~~
 
-Interactive OpenAPI documentation is available at `/docs` when the API is running.
+## Run locally
 
-## Repository structure
+### Requirements
 
-```text
-Evidence-Grounded-Decision-Support/
-├── alembic/
-│   └── versions/
-│       ├── 0001_conversations.py
-│       ├── 0002_decision_workspace.py
-│       ├── 0003_decision_audit_events.py
-│       ├── 0004_evidence_provenance.py
-│       ├── 0005_knowledge_cases.py
-│       └── 0006_research_runs.py
-├── src/
-│   └── wealthbrain/
-│       ├── api/
-│       ├── config/
-│       ├── domain/
-│       ├── infrastructure/
-│       ├── modules/
-│       │   ├── advisors/
-│       │   ├── ai/
-│       │   ├── decisions/
-│       │   ├── evaluation/
-│       │   ├── evidence/
-│       │   ├── knowledge/
-│       │   ├── orchestration/
-│       │   ├── research/
-│       │   ├── safety/
-│       │   └── conversations/
-│       └── main.py
-├── tests/
-├── .github/workflows/
-├── Dockerfile
-├── docker-compose.yml
-├── pyproject.toml
-└── README.md
-```
+- Python 3.12
+- [uv](https://docs.astral.sh/uv/)
+- Docker Engine / Docker Desktop for the container stack
+- PostgreSQL, either local or through Docker Compose
 
-## Database migrations
+### Option A: Docker Compose
 
-The current Alembic chain is:
+Start the container stack:
 
-```text
-0001 conversations
-   ↓
-0002 decision workspace
-   ↓
-0003 audit events
-   ↓
-0004 evidence provenance
-   ↓
-0005 historical knowledge
-   ↓
-0006 research runs
-```
+~~~powershell
+docker compose up --build
+~~~
 
-Apply migrations with:
+Then open **/docs** on the API address configured by Docker Compose.
 
-```powershell
+### Option B: Local Python environment
+
+Install dependencies:
+
+~~~powershell
+uv sync --all-groups
+~~~
+
+Apply database migrations:
+
+~~~powershell
 uv run alembic upgrade head
-```
+~~~
+
+Start the API:
+
+~~~powershell
+uv run uvicorn wealthbrain.main:app --reload
+~~~
+
+Run checks locally:
+
+~~~powershell
+uv run ruff check .
+uv run mypy
+uv run pytest
+docker build .
+~~~
+
+The database must be reachable and DATABASE_URL must be set for database-backed operations. API routes and external-provider behavior should be exercised against a configured environment before deployment.
 
 ## Configuration
 
-Configuration is environment-driven.
+The application is configured through environment variables. The following values illustrate a **development-only** setup; adjust them to your environment.
 
-Example development settings:
-
-```env
+~~~dotenv
 APP_ENV=development
 DATABASE_URL=postgresql+asyncpg://wealthbrain:wealthbrain@localhost:5432/wealthbrain
 
@@ -381,110 +353,115 @@ RATE_LIMIT_WINDOW_SECONDS=60
 LOG_LEVEL=INFO
 CORS_ORIGINS=http://localhost:3000
 TRUSTED_HOSTS=*
-```
+~~~
 
-Production deployments must keep credentials outside source control and must configure the API key explicitly.
+Do not use these example credentials or permissive host settings in production. Production deployments must set explicit secrets, trusted hosts, CORS origins, and API authentication configuration, and must keep credentials outside source control.
 
-## Local development
+## Tests and continuous integration
 
-Install dependencies:
+GitHub Actions validates the project with the same core checks used before a release:
 
-```powershell
-uv sync --all-groups
-```
+~~~text
+Dependency installation
+         |
+         v
+      Ruff lint
+         |
+         v
+       mypy
+         |
+         v
+      pytest
+         |
+         v
+     Docker build
+~~~
 
-Run migrations:
+Tests use deterministic providers where possible and should not require real model credentials. A green pipeline demonstrates that the configured automated checks passed for that commit; it does not certify advice quality, source truth, or production security.
 
-```powershell
-uv run alembic upgrade head
-```
+## Automated releases
 
-Start the API:
+The release workflow is version-driven and runs the validation checks before publishing a GitHub Release.
 
-```powershell
-uv run uvicorn wealthbrain.main:app --reload
-```
+- **Automatic from main:** after a successful validation run, the workflow publishes the version declared in pyproject.toml if that version has not already been released.
+- **Tag-triggered:** pushing a tag such as v0.3.2 runs validation and requires the tag version to match the package version in pyproject.toml.
+- **Manual:** the workflow can also be started from GitHub Actions. An optional version input must match the project version.
+- **Release notes:** GitHub generates release notes automatically. An already-published version is left unchanged.
 
-Run checks:
+To prepare a future release, update the version in pyproject.toml and add the corresponding entry to CHANGELOG.md, then merge the changes into main. The workflow will publish that version only after linting, typing, tests, and the Docker build succeed. Stable release tags use the vMAJOR.MINOR.PATCH format.
 
-```powershell
-uv run ruff check .
-uv run mypy
-uv run pytest
-```
+## Repository layout
 
-Run the full container stack:
+~~~text
+.
+├── .github/workflows/
+│   ├── ci.yml
+│   └── release.yml
+├── alembic/
+│   └── versions/
+├── src/wealthbrain/
+│   ├── api/
+│   ├── config/
+│   ├── domain/
+│   ├── infrastructure/
+│   ├── security/
+│   └── modules/
+│       ├── advisors/
+│       ├── ai/
+│       ├── conversations/
+│       ├── decisions/
+│       ├── evaluation/
+│       ├── evidence/
+│       ├── knowledge/
+│       ├── orchestration/
+│       ├── research/
+│       └── safety/
+├── tests/
+├── Dockerfile
+├── docker-compose.yml
+├── pyproject.toml
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+└── README.md
+~~~
 
-```powershell
-docker compose up --build
-```
+Database schema changes are managed with Alembic. The migration history currently covers conversations, the decision workspace, audit events, evidence provenance, historical knowledge, and research-run metadata.
 
-## Testing and CI
+## Security and data handling
 
-The repository treats automated checks as evidence for implemented scope.
+Do not commit API keys, production database dumps, private decision records, or real personal financial data. Use synthetic data in tests and examples. Treat external model and research providers as untrusted boundaries, and do not expose an unauthenticated deployment that contains sensitive decision information.
 
-Current CI sequence:
+Before handling real users' sensitive data, review the Git history, dependency posture, authentication and authorization, tenant/data isolation, logging, backups, network controls, and incident response. If a credential is exposed, revoke or rotate it immediately; deleting the visible file alone is insufficient.
 
-```text
-uv sync
-   ↓
-Ruff
-   ↓
-mypy
-   ↓
-pytest
-   ↓
-Docker build
-```
-
-The latest verified code checkpoint is:
-
-`a09f93dece3242094e526256700841061ca20041` (GitHub Actions Run 252)
-
-Its CI run completed successfully with:
-
-- Ruff ✅
-- mypy ✅
-- pytest ✅
-- Docker build ✅
-
-Subsequent documentation-only changes do not change the runtime behavior described above.
-
-## Public release and security posture
-
-The repository is public and licensed under MIT. It includes contribution guidance, a security policy, a code of conduct, architecture and safety documentation, and expectations to use synthetic data in tests and examples.
-
-Public availability does not mean the application is ready to handle real users' sensitive data. Before any such deployment, review Git history for accidentally committed credentials or private decision data, review dependencies and public API boundaries, and complete the remaining production-security work. If a credential is ever found in history, revoke or rotate it immediately; deleting the visible file alone is not sufficient.
+See [SECURITY.md](SECURITY.md) for the project's security policy.
 
 ## Roadmap
 
-The original 25-phase roadmap is maintained separately in the `Git-Projects-Phase` workspace.
+The original 25-phase roadmap is maintained separately in the Git-Projects-Phase workspace.
 
-The next unfinished areas are centered on:
-
-- stronger evaluation and regression integration;
-- deeper safety enforcement;
-- production hardening;
-- final release-candidate verification.
-
-The roadmap is not being replaced by this README.
+Remaining work is focused on stronger evaluation/regression integration, deeper safety enforcement, additional production hardening, and continued release-candidate verification. The roadmap is not replaced by this README.
 
 ## Design principles
 
-**Decision-first:** reason about a bounded decision rather than silently turning every conversation into a permanent profile.
+**Decision-first** — model a bounded decision explicitly instead of silently turning every conversation into a permanent profile.
 
-**Evidence before confidence:** insufficient evidence is a visible state.
+**Evidence before confidence** — insufficient evidence must remain visible.
 
-**Deterministic where possible:** quantitative calculations, ranking, risk scoring, and sufficiency checks should be reproducible.
+**Deterministic where possible** — quantitative comparison, risk scoring, and sufficiency checks should be reproducible.
 
-**AI as a component, not the system:** model calls sit behind explicit contracts.
+**AI as a component, not the system** — model calls remain behind explicit contracts.
 
-**Human control:** consequential external actions remain outside the application's autonomous boundary.
+**Human control** — consequential external actions stay outside the application's autonomous boundary.
 
-**Auditable evolution:** decisions, research runs, and important changes should leave inspectable metadata.
+**Auditable evolution** — research runs, decisions, and important changes should leave inspectable metadata.
 
-**Conservative claims:** implemented code, measured behavior, and roadmap intent are kept separate.
+**Conservative claims** — implemented behavior, measured outcomes, and roadmap intentions must remain distinct.
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for development expectations, testing commands, and pull-request guidance.
 
 ## License
 
-The project is licensed under the MIT License. See `LICENSE` for the full text.
+MIT. See [LICENSE](LICENSE).
