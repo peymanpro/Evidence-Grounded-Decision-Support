@@ -1,16 +1,18 @@
-# Open Source Readiness
+# Public Release and Maintenance
 
-The repository is currently private, but its structure is intentionally moving toward a public release.
+This repository is public and uses the MIT License.
 
-Before making the repository public, verify:
+## Public repository practices
 
-- no secrets or private data exist in Git history;
-- local environment files remain ignored;
-- documentation clearly separates implemented behavior from future roadmap;
-- CI passes on the default branch;
-- the public issue/PR workflow is defined;
-- security reporting instructions are visible;
-- sample data is synthetic;
-- external-provider calls are opt-in and credential-driven.
+- Keep credentials, private decision data, production database dumps, and real personal financial records out of Git.
+- Use synthetic data in tests and examples.
+- Keep implemented behavior distinct from roadmap intentions in documentation.
+- Run the CI checks on changes to application code.
+- Keep security reporting instructions visible and do not disclose exploitable issues in public issues.
+- Keep external-provider calls explicitly configured and credential-driven.
 
-The project currently uses the MIT License. This can be changed before the first public release if a different licensing strategy is chosen.
+## Before handling real user data
+
+Public source availability is separate from production readiness. Before deploying a hosted instance with real or sensitive data, review the full Git history for accidentally committed secrets or private data; review dependencies and licenses; verify authentication, authorization, data isolation, logging hygiene, backups, and deployment configuration; and complete deeper adversarial and security testing.
+
+If a credential is found in Git history, revoke or rotate it immediately. Removing the current file does not invalidate a credential that may already have been exposed.
