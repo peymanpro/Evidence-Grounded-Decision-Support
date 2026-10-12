@@ -86,9 +86,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="WealthBrain API",
+    title="Evidence-Grounded Decision Support API",
     version="0.3.1",
-    description="Decision intelligence for structured, evidence-aware decision workflows.",
+    description="AI-assisted decision support with structured analysis, evidence provenance, risk assessment, and human-reviewed recommendations.",
     lifespan=lifespan,
 )
 app.add_middleware(SecurityHeadersMiddleware)
