@@ -454,7 +454,7 @@ The following public repositories explore adjacent parts of the broader AI/softw
 | [Production Agent Systems](https://github.com/peymanpro/Production-Agent-Systems) | Tool contracts, runtime policy, bounded retries, checkpoint/recovery, trace, and audit |
 | [RateLimitEngine](https://github.com/peymanpro/RateLimitEngine) | A separate .NET rate-limiting library with in-memory and Redis-backed implementations |
 
-The separation is intentional: each repository makes a different engineering boundary inspectable, while this project brings structured decisions, evidence provenance, quantitative reasoning, evaluation, and safety checks into one decision-support workflow.
+The separation is intentional. This application exposes a dependency-free interoperability contract and evaluation-suite export surface for [AI Evaluation Engineering](https://github.com/peymanpro/AI-Evaluation-Engineering), without importing that package at runtime. The other repositories address separate lifecycle layers; this project brings structured decisions, evidence provenance, quantitative reasoning, evaluation, and safety checks into one decision-support workflow.
 
 ## Design principles
 
