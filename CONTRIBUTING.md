@@ -1,4 +1,4 @@
-# Contributing to WealthBrain
+# Contributing to Evidence-Grounded Decision Support
 
 Thanks for considering a contribution.
 
