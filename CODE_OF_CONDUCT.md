@@ -2,7 +2,7 @@
 
 ## Our standard
 
-We want WealthBrain to be a technical project where people can discuss architecture, research, experiments, and implementation without harassment or discrimination.
+We want Evidence-Grounded Decision Support to be a technical project where people can discuss architecture, research, experiments, and implementation without harassment or discrimination.
 
 Contributors are expected to:
 
